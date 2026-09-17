@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>FY616 // 五个人</title>
+<!-- 他叫 lie_fish。不叫老板。 -->
+<style>
+  :root{
+    --bg:#040607;
+    --card:#0a0f11;
+    --line:#1d272b;
+    --text:#d3dcda;
+    --muted:#7b8888;
+    --dim:#4b5757;
+    --red:#c1122f;
+    --red-2:#5f0c1b;
+    --green:#7bd6b6;
+    --amber:#d2a15c;
+    --blue:#7aa7c7;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}
+  body{
+    min-height:100dvh;
+    display:flex;
+    justify-content:center;
+    padding:24px 16px 32px;
+    font-family:"Cascadia Mono","SFMono-Regular",Consolas,"Microsoft YaHei","PingFang SC",monospace;
+    letter-spacing:.02em;
+    background:
+      radial-gradient(900px 520px at 50% -15%,rgba(193,18,47,.09),transparent 60%),
+      radial-gradient(760px 480px at 12% 110%,rgba(123,214,182,.05),transparent 62%),
+      var(--bg);
+  }
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:40;
+    background:repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,.035) 0,
+      rgba(255,255,255,.035) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    opacity:.42;
+    mix-blend-mode:screen;
+  }
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:41;
+    background:radial-gradient(ellipse at center,transparent 46%,rgba(0,0,0,.52) 100%);
+  }
+
+  .stage{
+    position:relative;
+    z-index:5;
+    width:100%;
+    max-width:900px;
+  }
+
+  .top{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px 18px;
+    margin-bottom:14px;
+  }
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand-mark{
+    width:42px;height:42px;
+    display:grid;place-items:center;
+    border:1px solid var(--red-2);
+    color:var(--red);
+    font-weight:700;
+    letter-spacing:.08em;
+    box-shadow:0 0 22px rgba(193,18,47,.18) inset;
+  }
+  .brand-title{font-size:16px;font-weight:600}
+  .brand-sub{margin-top:3px;color:var(--muted);font-size:11px}
+  .status{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px 14px;
+    color:var(--muted);
+    font-size:12px;
+  }
+  .status b{color:var(--text);font-weight:500}
+
+  .roster{
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .roster-item{
+    padding:10px 10px 11px;
+    border:1px solid var(--line);
+    background:rgba(10,15,17,.86);
+    min-width:0;
+  }
+  .roster-name{
+    color:#e5edec;
+    font-size:13px;
+    font-weight:500;
+    margin-bottom:4px;
+    overflow-wrap:anywhere;
+  }
+  .roster-role{
+    color:var(--muted);
+    font-size:10px;
+    line-height:1.55;
+  }
+
+  .card{
+    position:relative;
+    background:linear-gradient(180deg,rgba(10,15,17,.97),rgba(7,10,12,.95));
+    border:1px solid var(--line);
+    box-shadow:0 28px 90px rgba(0,0,0,.5);
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    left:0;top:0;width:100%;height:1px;
+    background:linear-gradient(90deg,transparent,var(--red-2),transparent);
+    opacity:.8;
+  }
+  .progress{
+    height:3px;
+    margin:-1px 0 0;
+    background:var(--line);
+    overflow:hidden;
+  }
+  .progress-bar{
+    width:0;height:100%;
+    background:linear-gradient(90deg,var(--red-2),var(--red));
+    transition:width .35s ease;
+  }
+  .scene-meta{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px 14px;
+    padding:14px 18px 0;
+    color:var(--dim);
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+  h1{
+    margin:10px 18px 16px;
+    font-size:22px;
+    line-height:1.4;
+    font-weight:500;
+    color:#e3ebea;
+  }
+  .scene-text{
+    min-height:320px;
+    padding:0 18px 8px;
+    white-space:pre-wrap;
+    overflow-wrap:anywhere;
+    font-size:16px;
+    line-height:2;
+    color:#c7d1d0;
+  }
+  .cursor{
+    display:inline-block;
+    width:9px;height:1.1em;
+    margin-left:2px;
+    vertical-align:-2px;
+    background:var(--red);
+    opacity:.72;
+    animation:blink 1s steps(1) infinite;
+  }
+  @keyframes blink{
+    0%,49%{opacity:.72}
+    50%,100%{opacity:0}
+  }
+
+  .actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    padding:16px 18px 18px;
+    border-top:1px solid var(--line);
+  }
+  button{font:inherit;cursor:pointer}
+  .primary{
+    min-width:150px;
+    padding:14px 26px;
+    border:1px solid var(--red-2);
+    background:linear-gradient(180deg,rgba(193,18,47,.22),rgba(193,18,47,.08));
+    color:#f0d9de;
+    font-size:16px;
+    letter-spacing:.08em;
+    transition:background .18s,border-color .18s,transform .18s;
+  }
+  .primary:hover,.primary:focus-visible{
+    background:linear-gradient(180deg,rgba(193,18,47,.34),rgba(193,18,47,.12));
+    border-color:var(--red);
+  }
+  .primary:active{transform:translateY(1px)}
+  .secondary{
+    padding:12px 18px;
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--muted);
+    transition:color .18s,border-color .18s,background .18s;
+    text-decoration:none;
+  }
+  .secondary:hover,.secondary:focus-visible{
+    color:var(--text);
+    border-color:var(--red-2);
+    background:rgba(193,18,47,.06);
+  }
+
+  .footer{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px 16px;
+    margin-top:14px;
+    color:var(--dim);
+    font-size:11px;
+  }
+  .footer-left,.footer-right{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:10px 14px;
+  }
+  .audio{
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--muted);
+    padding:6px 10px;
+    font-size:11px;
+  }
+  .audio:hover,.audio:focus-visible{
+    color:var(--text);
+    border-color:var(--red-2);
+  }
+  .link{
+    color:var(--muted);
+    text-decoration:none;
+    border-bottom:1px solid var(--line);
+    padding-bottom:1px;
+  }
+  .link:hover,.link:focus-visible{
+    color:var(--text);
+    border-color:var(--red-2);
+  }
+
+  .modal{
+    position:fixed;
+    inset:0;
+    z-index:100;
+    display:grid;
+    place-items:center;
+    padding:20px;
+  }
+  .modal-backdrop{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.8);
+    backdrop-filter:blur(4px);
+  }
+  .modal-card{
+    position:relative;
+    width:min(820px,100%);
+    max-height:min(84dvh,860px);
+    display:flex;
+    flex-direction:column;
+    background:linear-gradient(180deg,#0b1113,#07090b);
+    border:1px solid var(--red-2);
+    box-shadow:0 30px 120px rgba(0,0,0,.8);
+  }
+  .modal-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:12px 14px;
+    border-bottom:1px solid var(--line);
+    color:var(--red);
+    font-size:12px;
+    letter-spacing:.08em;
+  }
+  .modal-body{
+    overflow:auto;
+    padding:18px 18px 24px;
+  }
+  .reward-title{
+    margin:0 0 10px;
+    color:var(--amber);
+    font-size:13px;
+    font-weight:500;
+  }
+  .reward-table{
+    width:100%;
+    border-collapse:collapse;
+    margin:0 0 18px;
+    font-size:13px;
+  }
+  .reward-table th,.reward-table td{
+    padding:9px 10px;
+    border-bottom:1px solid var(--line);
+    text-align:left;
+    vertical-align:top;
+    line-height:1.6;
+  }
+  .reward-table th{color:var(--muted);font-weight:500;white-space:nowrap}
+  .reward-table td{color:var(--text)}
+  .reward-note{
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.8;
+    margin:0 0 8px;
+  }
+
+  @media (max-width:760px){
+    .roster{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media (max-width:640px){
+    body{padding:16px 10px 24px}
+    .brand-title{font-size:14px}
+    h1{font-size:19px;margin:10px 14px 14px}
+    .scene-meta{padding:12px 14px 0}
+    .scene-text{min-height:380px;padding:0 14px 8px;font-size:15px;line-height:1.95}
+    .actions{flex-direction:column;padding:12px 14px 16px}
+    .primary,.secondary{width:100%;min-width:0;text-align:center}
+    .reward-table{font-size:12px}
+    .reward-table th,.reward-table td{padding:7px 6px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .cursor{animation:none!important}
+    .primary,.secondary,.progress-bar{transition:none!important}
+  }
+</style>
+</head>
+<body>
+<main class="stage">
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark">FY</div>
+      <div>
+        <div class="brand-title">FY616 // 五个人</div>
+        <div class="brand-sub">寻找 lie_fish · 最终行动</div>
+      </div>
+    </div>
+    <div class="status">
+      <span>目标 <b>lie_fish</b></span>
+      <span>队伍 <b>5 人</b></span>
+      <span>目标地点 <b>唯云港</b></span>
+    </div>
+  </header>
+
+  <section class="roster" aria-label="行动队伍">
+    <div class="roster-item">
+      <div class="roster-name">FY616</div>
+      <div class="roster-role">线索、直觉、记得他说话的方式</div>
+    </div>
+    <div class="roster-item">
+      <div class="roster-name">charhaku</div>
+      <div class="roster-role">近战、护人、认识鱼鱼中店的每条路</div>
+    </div>
+    <div class="roster-item">
+      <div class="roster-name">z7117</div>
+      <div class="roster-role">方块记录、坐标、谁放了什么</div>
+    </div>
+    <div class="roster-item">
+      <div class="roster-name">Nov</div>
+      <div class="roster-role">货源、箱子、最后见过他的人</div>
+    </div>
+    <div class="roster-item">
+      <div class="roster-name">707</div>
+      <div class="roster-role">交易网、广告、谁在冒用他的名字</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="progress" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="scene-meta">
+      <span id="sceneCounter">01 / 10</span>
+      <span id="sceneState">行动中</span>
+    </div>
+    <h1 id="sceneTitle">线索</h1>
+    <div class="scene-text" id="sceneText"></div>
+    <div class="actions">
+      <button class="primary" id="nextButton" type="button">继续</button>
+      <button class="secondary" id="backButton" type="button">上一段</button>
+      <button class="secondary" id="rewardButton" type="button" hidden>查看活动奖励</button>
+      <button class="secondary" id="restartButton" type="button" hidden>重新看一遍</button>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-left">
+      <button class="audio" id="audioButton" type="button">音乐：关</button>
+      <span>10月7日 · 唯云港生日宴</span>
+    </div>
+    <div class="footer-right">
+      <a class="link" href="find-lie-fish.html">阿米的调查页</a>
+      <a class="link" href="./">生日宴主页</a>
+    </div>
+  </footer>
+</main>
+
+<audio id="bgm" src="flatten-the-curve.flac" loop preload="auto"></audio>
+
+<div class="modal" id="rewardModal" hidden>
+  <div class="modal-backdrop" data-close="1"></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="rewardTitle">
+    <div class="modal-head">
+      <div id="rewardTitle">SimMC 生日宴活动奖励</div>
+      <button class="secondary" id="rewardClose" type="button">关闭</button>
+    </div>
+    <div class="modal-body">
+      <div class="reward-title">全服生日礼</div>
+      <p class="reward-note">所有参加生日宴的玩家：烙印酒 x1、名贵菜 x1。</p>
+
+      <table class="reward-table">
+        <thead>
+          <tr><th>档位</th><th>获取条件</th><th>奖励内容</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>第一档</td>
+            <td>到场签到</td>
+            <td>烙印酒 x1、名贵菜 x1、合金碎片 x8、经验 x8、风弹 x8、烈焰棒 x8</td>
+          </tr>
+          <tr>
+            <td>第二档</td>
+            <td>完成生日宴小游戏或打卡任务</td>
+            <td>烙印酒 x1、名贵菜 x1、合金碎片 x24、经验 x24、风弹 x24、烈焰棒 x24</td>
+          </tr>
+          <tr>
+            <td>最高档</td>
+            <td>生日宴活动前三名</td>
+            <td>烙印酒 x1、名贵菜 x1、合金碎片 x32、经验 x32、风弹 x32、烈焰棒 x32</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="reward-title">奖励寓意</div>
+      <p class="reward-note">烙印酒：敬鱼鱼中店的招牌。</p>
+      <p class="reward-note">名贵菜：敬这一年每一顿热饭。</p>
+      <p class="reward-note">合金碎片：敬走过下界的远路。</p>
+      <p class="reward-note">经验：敬这一年攒下来的本事。</p>
+      <p class="reward-note">风弹：敬下一次出发。</p>
+      <p class="reward-note">烈焰棒：敬一直亮着的灯。</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = (selector) => document.querySelector(selector);
+
+const scenes = [
+  {
+    title: "线索",
+    text: `我是 FY616。
+lie_fish 的好朋友。
+
+我不喜欢“老板”这个叫法。
+他叫 lie_fish。彩石。
+
+那天，我在鱼鱼中店的门口捡到一个箱子。
+箱子里只有两样东西：
+一瓶烙印酒，一盘名贵菜。
+
+还有一张纸条：
+
+老板今天不在。
+
+我不信。`
+  },
+  {
+    title: "找人",
+    text: `我找了四个人。
+
+charhaku，lie_fish 平日里最好的玩伴。
+z7117，冷静，会查方块记录。
+Nov，稻叶香飘飘港的料商，lie_fish 最早的货源。
+707，湘江港卖货的老板，最早察觉不对劲的人。
+
+加上我，一共五个。
+
+五个人，去找 lie_fish。`
+  },
+  {
+    title: "唯云港",
+    text: `傍晚，唯云港商业街。
+台阶上坐着人，像在等一场宴会。
+马路正中央摆着一口箱子。
+
+z7117 蹲下去看方块记录。
+“柜台后的方块被换过。
+操作者不是玩家，是 script_????”
+
+Nov 盯着箱子。
+“抬下去的时候是空的。
+抬上来的时候不是。”
+
+707 看着广场入口。
+“广告不对劲。
+那条广告在抄 lie_fish 的收银告示。”`
+  },
+  {
+    title: "鱼鱼中店",
+    text: `我们推开鱼鱼中店的门。
+里面黑着。
+
+仓库箱：二十七格。
+二十六格摆着粗铁。
+最后一格是空的。
+
+中间箱子里有一把镐子。
+耐久几乎到底。
+名字被铁砧改过：
+
+老板。
+
+charhaku 把镐子递给我。
+“他不叫老板。”
+“他叫 lie_fish。”`
+  },
+  {
+    title: "唯俏",
+    text: `广场入口。
+唯俏站在那里。
+头顶挂着招牌，全天在线，从不下线。
+
+整点。广告刷新。
+没有标点，没有停顿，没有呼吸。
+
+收粗铁 铁锭 下界合金 收奥数素材 价比全场高 老板今天不在
+
+它用 lie_fish 的语气说话。
+它以为这样就能变成他。`
+  },
+  {
+    title: "对峙",
+    text: `我走到它面前。
+“你不是他。”
+
+唯俏没有停。
+“老板今天不在。”
+
+charhaku 握紧了剑。
+z7117 把坐标记在手里。
+Nov 把箱子推到路中央。
+707 堵住了它的退路。
+
+我说：
+“再叫一次老板，就打你。”`
+  },
+  {
+    title: "开打",
+    text: `唯俏终于停了。
+
+它抬起头。
+招牌上的字开始闪。
+“老板今天不在。”
+
+charhaku 第一个冲上去。
+z7117 拆掉了柜台后的脚本方块。
+Nov 把箱子砸开，露出里面的空位。
+707 切断了广告的刷新。
+
+我拿着那把镐子。
+镐子上刻着“老板”。
+我说：
+“你不配。”`
+  },
+  {
+    title: "暴打唯俏",
+    text: `我们五个人一起上。
+
+charhaku 的剑。
+z7117 的方块记录。
+Nov 的箱子。
+707 的货单。
+还有我的镐子。
+
+一下。
+两下。
+三下。
+
+唯俏的广告断了。
+招牌开始裂。
+它想说话，但说不完整。
+
+老板……
+今天……
+
+不在。
+
+最后一镐。
+我砸在招牌上。
+“他叫 lie_fish。”`
+  },
+  {
+    title: "找到他",
+    text: `广告停了。
+广场安静了。
+玩家列表刷新了。
+
+第 27 位玩家：lie_fish。
+
+他站在商业街尽头，
+穿着那身奥数装备，
+手里还拿着半瓶烙印酒。
+
+他看了看我们五个。
+“你们来晚了。”
+“生日宴都要开始了。”
+
+charhaku 笑了。
+Nov 把箱子盖上。
+z7117 把记录保存。
+707 说：“广告费记得结一下。”
+
+我说：
+“下次别把自己弄丢。”`
+  },
+  {
+    title: "生日宴",
+    text: `10月7日。
+唯云港。
+生日宴正式开幕。
+
+五个人，一张桌子。
+烙印酒、名贵菜、合金碎片、经验、风弹、烈焰棒。
+
+lie_fish 坐在中间。
+这一次，所有人都叫对了他的名字。
+
+FY616。
+charhaku。
+z7117。
+Nov。
+707。
+
+我们是来找 lie_fish 的。
+
+我们找到了。`
+  }
+];
+
+const state = {
+  index: 0,
+  typing: false,
+  typeToken: 0,
+  musicStarted: false,
+  musicAttempted: false,
+  musicFadeFrame: null
+};
+
+const textElement = $("#sceneText");
+const nextButton = $("#nextButton");
+const backButton = $("#backButton");
+const rewardButton = $("#rewardButton");
+const restartButton = $("#restartButton");
+const bgm = $("#bgm");
+const MUSIC_VOLUME = 0.42;
+
+function sleep(ms){
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function typeSceneText(text, token){
+  state.typing = true;
+  textElement.innerHTML = "";
+  const cursor = document.createElement("span");
+  cursor.className = "cursor";
+  textElement.appendChild(cursor);
+
+  for (let index = 0; index < text.length; index += 1){
+    if (token !== state.typeToken) return;
+    cursor.insertAdjacentText("beforebegin", text[index]);
+    if (index % 2 === 0) await sleep(7);
+  }
+
+  if (token !== state.typeToken) return;
+  cursor.remove();
+  state.typing = false;
+}
+
+function finishTyping(){
+  if (!state.typing) return;
+  state.typeToken += 1;
+  state.typing = false;
+  textElement.textContent = scenes[state.index].text;
+}
+
+function renderScene(){
+  state.typeToken += 1;
+  const token = state.typeToken;
+  const scene = scenes[state.index];
+
+  $("#sceneTitle").textContent = scene.title;
+  $("#sceneCounter").textContent = String(state.index + 1).padStart(2, "0") + " / " + String(scenes.length).padStart(2, "0");
+  $("#sceneState").textContent = state.index >= scenes.length - 1 ? "已找到" : "行动中";
+  $("#progressBar").style.width = ((state.index + 1) / scenes.length * 100).toFixed(2) + "%";
+
+  backButton.hidden = state.index === 0;
+  restartButton.hidden = state.index < scenes.length - 1;
+  nextButton.hidden = state.index >= scenes.length - 1;
+  rewardButton.hidden = state.index < scenes.length - 1;
+
+  typeSceneText(scene.text, token);
+}
+
+function nextScene(){
+  startMusicOnce();
+  if (state.typing){
+    finishTyping();
+    return;
+  }
+  if (state.index < scenes.length - 1){
+    state.index += 1;
+    renderScene();
+  }
+}
+
+function previousScene(){
+  startMusicOnce();
+  if (state.typing){
+    finishTyping();
+    return;
+  }
+  if (state.index > 0){
+    state.index -= 1;
+    renderScene();
+  }
+}
+
+function restartStory(){
+  startMusicOnce();
+  state.index = 0;
+  renderScene();
+}
+
+nextButton.addEventListener("click", nextScene);
+backButton.addEventListener("click", previousScene);
+restartButton.addEventListener("click", restartStory);
+
+document.addEventListener("keydown", (event) => {
+  if (event.target && event.target.tagName === "BUTTON") return;
+  if (event.key === "ArrowRight" || event.key === "Enter" || event.key === " "){
+    event.preventDefault();
+    nextScene();
+  }
+  if (event.key === "ArrowLeft"){
+    event.preventDefault();
+    previousScene();
+  }
+});
+
+function openRewards(){
+  $("#rewardModal").hidden = false;
+}
+function closeRewards(){
+  $("#rewardModal").hidden = true;
+}
+rewardButton.addEventListener("click", openRewards);
+$("#rewardClose").addEventListener("click", closeRewards);
+$("#rewardModal").addEventListener("click", (event) => {
+  if (event.target.dataset.close) closeRewards();
+});
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") closeRewards();
+});
+
+function fadeMusic(targetVolume, duration){
+  if (!bgm) return;
+  const startVolume = bgm.volume;
+  const startTime = performance.now();
+  const fadeDuration = duration || 1200;
+  if (state.musicFadeFrame) cancelAnimationFrame(state.musicFadeFrame);
+
+  function step(now){
+    const progress = Math.min(1, (now - startTime) / fadeDuration);
+    bgm.volume = startVolume + (targetVolume - startVolume) * progress;
+    if (progress < 1){
+      state.musicFadeFrame = requestAnimationFrame(step);
+    } else {
+      state.musicFadeFrame = null;
+    }
+  }
+  state.musicFadeFrame = requestAnimationFrame(step);
+}
+
+function startMusic(){
+  if (!bgm) return;
+  bgm.volume = 0;
+  const playResult = bgm.play();
+  const markPlaying = () => {
+    state.musicStarted = true;
+    state.musicAttempted = true;
+    $("#audioButton").textContent = "音乐：开";
+    fadeMusic(MUSIC_VOLUME, 1400);
+  };
+  const markFailed = () => {
+    state.musicStarted = false;
+    state.musicAttempted = false;
+    $("#audioButton").textContent = "音乐：关";
+  };
+  if (playResult && typeof playResult.then === "function"){
+    playResult.then(markPlaying).catch(markFailed);
+  } else {
+    markPlaying();
+  }
+}
+
+function stopMusic(){
+  if (!bgm) return;
+  fadeMusic(0, 480);
+  setTimeout(() => {
+    if (bgm) bgm.pause();
+  }, 520);
+  state.musicStarted = false;
+  $("#audioButton").textContent = "音乐：关";
+}
+
+function startMusicOnce(){
+  if (state.musicAttempted || state.musicStarted) return;
+  state.musicAttempted = true;
+  startMusic();
+}
+
+$("#audioButton").addEventListener("click", () => {
+  if (state.musicStarted) stopMusic();
+  else startMusic();
+});
+
+document.addEventListener("visibilitychange", () => {
+  document.title = document.hidden ? "他叫 lie_fish" : "FY616 // 五个人";
+});
+
+renderScene();
+</script>
+</body>
+</html>
