@@ -5,42 +5,43 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
 <title>SimMC // 老板今天不在</title>
-<!-- 第十五个插件没有名字。 -->
+<!-- key: 827df279c91689b8cfadf007a1fd199e -->
+<!-- 左上角的红框不会主动告诉你答案。 -->
 <style>
   :root{
-    --bg:#050607;
-    --card:#0b0f11;
-    --line:#20292d;
-    --text:#d3dbda;
-    --muted:#7b8787;
-    --dim:#4d5858;
+    --bg:#040607;
+    --card:#0a0f11;
+    --line:#1d272b;
+    --text:#d3dcda;
+    --muted:#7b8888;
+    --dim:#4b5757;
     --red:#c1122f;
     --red-2:#5f0c1b;
     --green:#7bd6b6;
     --amber:#d2a15c;
+    --blue:#7aa7c7;
   }
-
   *{box-sizing:border-box}
+  [hidden]{display:none!important}
   html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}
   body{
     min-height:100dvh;
     display:flex;
     justify-content:center;
-    padding:26px 16px 34px;
+    padding:24px 16px 32px;
     font-family:"Cascadia Mono","SFMono-Regular",Consolas,"Microsoft YaHei","PingFang SC",monospace;
     letter-spacing:.02em;
     background:
       radial-gradient(900px 520px at 50% -15%,rgba(193,18,47,.09),transparent 60%),
-      radial-gradient(760px 480px at 12% 110%,rgba(122,167,199,.05),transparent 62%),
+      radial-gradient(760px 480px at 12% 110%,rgba(123,214,182,.05),transparent 62%),
       var(--bg);
   }
-
   body::before{
     content:"";
     position:fixed;
     inset:0;
     pointer-events:none;
-    z-index:20;
+    z-index:40;
     background:repeating-linear-gradient(
       to bottom,
       rgba(255,255,255,.035) 0,
@@ -56,16 +57,10 @@
     position:fixed;
     inset:0;
     pointer-events:none;
-    z-index:21;
+    z-index:41;
     background:radial-gradient(ellipse at center,transparent 46%,rgba(0,0,0,.52) 100%);
   }
-
-  .stage{
-    position:relative;
-    z-index:5;
-    width:100%;
-    max-width:880px;
-  }
+  .stage{position:relative;z-index:5;width:100%;max-width:920px}
 
   .top{
     display:flex;
@@ -73,141 +68,153 @@
     align-items:center;
     justify-content:space-between;
     gap:10px 18px;
-    margin-bottom:16px;
+    margin-bottom:12px;
   }
-  .brand{
-    display:flex;
-    align-items:center;
-    gap:12px;
-  }
-  .brand-mark{
-    width:40px;
-    height:40px;
-    display:grid;
-    place-items:center;
+  .left{display:flex;align-items:center;gap:12px;min-width:0}
+  .red-box{
+    width:34px;height:34px;
+    display:grid;place-items:center;
     border:1px solid var(--red-2);
+    background:rgba(193,18,47,.08);
     color:var(--red);
-    font-weight:700;
-    letter-spacing:.12em;
-    box-shadow:0 0 22px rgba(193,18,47,.18) inset;
+    font-size:11px;
+    letter-spacing:.08em;
+    transition:box-shadow .18s,border-color .18s,background .18s,color .18s;
   }
+  .red-box.locked{
+    color:var(--red-2);
+    background:rgba(193,18,47,.03);
+  }
+  .red-box.ready{
+    color:#ff8ea0;
+    border-color:var(--red);
+    background:rgba(193,18,47,.2);
+    box-shadow:0 0 18px rgba(193,18,47,.5);
+    cursor:pointer;
+  }
+  .red-box:hover,.red-box:focus-visible{
+    border-color:var(--red);
+    box-shadow:0 0 14px rgba(193,18,47,.35);
+  }
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}
   .brand-title{font-size:16px;font-weight:600}
   .brand-sub{margin-top:3px;color:var(--muted);font-size:11px}
+  .status{display:flex;flex-wrap:wrap;gap:6px 14px;color:var(--muted);font-size:12px}
+  .status b{color:var(--text);font-weight:500}
 
-  .status{
+  .chapter-nav{
     display:flex;
     flex-wrap:wrap;
-    gap:6px 14px;
+    gap:8px;
+    margin-bottom:12px;
+  }
+  .chapter-btn{
+    padding:9px 14px;
+    border:1px solid var(--line);
+    background:rgba(10,15,17,.8);
     color:var(--muted);
     font-size:12px;
+    transition:color .18s,border-color .18s,background .18s;
   }
-  .status b{color:var(--text);font-weight:500}
+  .chapter-btn:hover,.chapter-btn:focus-visible{
+    color:var(--text);
+    border-color:var(--red-2);
+  }
+  .chapter-btn.active{
+    color:#f0d9de;
+    border-color:var(--red-2);
+    background:linear-gradient(180deg,rgba(193,18,47,.2),rgba(193,18,47,.07));
+  }
+  .chapter-btn.locked{
+    color:var(--dim);
+    border-style:dashed;
+  }
+
+  .nav-message{
+    min-height:18px;
+    margin:-4px 0 10px;
+    color:var(--amber);
+    font-size:11px;
+  }
+
+  .countdown{
+    margin-bottom:12px;
+    padding:9px 12px;
+    border:1px solid var(--line);
+    background:rgba(193,18,47,.04);
+    color:var(--amber);
+    font-size:11px;
+    line-height:1.6;
+  }
 
   .card{
     position:relative;
-    background:linear-gradient(180deg,rgba(11,15,17,.97),rgba(8,11,13,.94));
+    background:linear-gradient(180deg,rgba(10,15,17,.97),rgba(7,10,12,.95));
     border:1px solid var(--line);
-    padding:24px 24px 20px;
-    box-shadow:0 28px 90px rgba(0,0,0,.48);
+    box-shadow:0 28px 90px rgba(0,0,0,.5);
   }
   .card::before{
     content:"";
     position:absolute;
-    left:0;
-    top:0;
-    width:100%;
-    height:1px;
+    left:0;top:0;width:100%;height:1px;
     background:linear-gradient(90deg,transparent,var(--red-2),transparent);
     opacity:.8;
   }
 
-  .progress{
-    height:3px;
-    margin:-4px 0 18px;
-    background:var(--line);
-    overflow:hidden;
-  }
+  .progress{height:3px;background:var(--line);overflow:hidden}
   .progress-bar{
-    width:0;
-    height:100%;
+    width:0;height:100%;
     background:linear-gradient(90deg,var(--red-2),var(--red));
     transition:width .35s ease;
   }
-
   .scene-meta{
-    display:flex;
-    flex-wrap:wrap;
-    align-items:center;
-    justify-content:space-between;
-    gap:8px 14px;
-    margin-bottom:14px;
-    color:var(--dim);
-    font-size:11px;
-    letter-spacing:.14em;
-    text-transform:uppercase;
+    display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+    gap:8px 14px;padding:14px 18px 0;color:var(--dim);
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;
   }
-
   h1{
-    margin:0 0 18px;
-    font-size:22px;
-    line-height:1.4;
-    font-weight:500;
-    color:#e3ebea;
+    margin:10px 18px 16px;font-size:22px;line-height:1.4;
+    font-weight:500;color:#e3ebea;
   }
-  h1.glitch{
-    color:var(--red);
-    text-shadow:1px 0 rgba(122,167,199,.7),-1px 0 rgba(193,18,47,.8);
-    animation:glitch .38s steps(2) 2;
-  }
-  @keyframes glitch{
-    0%{transform:translateX(0)}
-    25%{transform:translateX(-1px)}
-    50%{transform:translateX(1px)}
-    75%{transform:translateX(-1px)}
-    100%{transform:translateX(0)}
-  }
-
   .scene-text{
-    min-height:260px;
-    white-space:pre-wrap;
-    overflow-wrap:anywhere;
-    font-size:16px;
-    line-height:2;
-    color:#c7d1d0;
+    min-height:330px;padding:0 18px 8px;white-space:pre-wrap;
+    overflow-wrap:anywhere;font-size:16px;line-height:2;color:#c7d1d0;
   }
   .cursor{
-    display:inline-block;
-    width:9px;
-    height:1.1em;
-    margin-left:2px;
-    vertical-align:-2px;
-    background:var(--red);
-    opacity:.72;
+    display:inline-block;width:9px;height:1.1em;margin-left:2px;
+    vertical-align:-2px;background:var(--red);opacity:.72;
     animation:blink 1s steps(1) infinite;
   }
-  @keyframes blink{
-    0%,49%{opacity:.72}
-    50%,100%{opacity:0}
+  @keyframes blink{0%,49%{opacity:.72}50%,100%{opacity:0}}
+
+  .terminal{
+    min-height:430px;max-height:56dvh;overflow:auto;
+    padding:18px 18px 12px;line-height:1.75;font-size:14px;
+    scrollbar-color:var(--line) transparent;
+  }
+  .terminal::-webkit-scrollbar{width:9px}
+  .terminal::-webkit-scrollbar-thumb{background:var(--line)}
+  .term-line{margin:0 0 8px;white-space:pre-wrap;overflow-wrap:anywhere}
+  .term-line.sys{color:var(--blue)}
+  .term-line.ami{color:var(--green)}
+  .term-line.log{color:#b9c4c3}
+  .term-line.warn{color:var(--amber)}
+  .term-line.danger{color:#e56b7f}
+  .term-line.muted{color:var(--muted)}
+  .term-line.glitch{
+    color:var(--red);
+    text-shadow:1px 0 rgba(122,167,199,.7),-1px 0 rgba(193,18,47,.8);
   }
 
   .actions{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    margin-top:22px;
+    display:flex;flex-wrap:wrap;gap:10px;
+    padding:16px 18px 18px;border-top:1px solid var(--line);
   }
-  button{
-    font:inherit;
-    cursor:pointer;
-  }
+  button{font:inherit;cursor:pointer}
   .primary{
-    min-width:150px;
-    padding:14px 28px;
-    border:1px solid var(--red-2);
+    min-width:150px;padding:14px 26px;border:1px solid var(--red-2);
     background:linear-gradient(180deg,rgba(193,18,47,.22),rgba(193,18,47,.08));
-    color:#f0d9de;
-    font-size:16px;
-    letter-spacing:.08em;
+    color:#f0d9de;font-size:16px;letter-spacing:.08em;
     transition:background .18s,border-color .18s,transform .18s;
   }
   .primary:hover,.primary:focus-visible{
@@ -215,111 +222,115 @@
     border-color:var(--red);
   }
   .primary:active{transform:translateY(1px)}
-
   .secondary{
-    padding:12px 18px;
-    border:1px solid var(--line);
-    background:transparent;
-    color:var(--muted);
-    transition:color .18s,border-color .18s,background .18s;
+    padding:12px 18px;border:1px solid var(--line);background:transparent;
+    color:var(--muted);transition:color .18s,border-color .18s,background .18s;
   }
   .secondary:hover,.secondary:focus-visible{
-    color:var(--text);
-    border-color:var(--red-2);
+    color:var(--text);border-color:var(--red-2);background:rgba(193,18,47,.06);
+  }
+
+  .key-panel{
+    margin:0 18px 18px;padding:16px;
+    border:1px solid var(--red-2);
     background:rgba(193,18,47,.06);
   }
-
-  .footer{
-    display:flex;
-    flex-wrap:wrap;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px 16px;
-    margin-top:14px;
-    color:var(--dim);
-    font-size:11px;
+  .key-title{color:var(--red);font-size:13px;letter-spacing:.1em;margin-bottom:8px}
+  .key-hint{color:var(--muted);font-size:12px;line-height:1.8;margin-bottom:10px}
+  .key-row{display:flex;flex-wrap:wrap;gap:8px}
+  #keyInput{
+    flex:1;min-width:220px;padding:12px 12px;
+    border:1px solid var(--line);background:#06090b;color:var(--text);
+    outline:0;font-size:13px;
   }
-  .footer-left,.footer-right{
-    display:flex;
-    flex-wrap:wrap;
-    align-items:center;
-    gap:10px 14px;
+  #keyInput:focus{border-color:var(--red-2)}
+  #keySubmit{
+    padding:12px 18px;border:1px solid var(--red-2);
+    background:rgba(193,18,47,.16);color:#f0d9de;
   }
-  .audio{
-    border:1px solid var(--line);
-    background:transparent;
-    color:var(--muted);
-    padding:6px 10px;
-    font-size:11px;
-  }
-  .audio:hover,.audio:focus-visible{
-    color:var(--text);
-    border-color:var(--red-2);
-  }
-
-  .dot{
-    width:12px;
-    height:12px;
-    padding:0;
-    border:0;
-    border-radius:50%;
-    background:var(--red-2);
-    opacity:.34;
-    transition:opacity .18s,box-shadow .18s;
-  }
-  .dot:hover,.dot:focus-visible{
-    opacity:1;
-    box-shadow:0 0 12px rgba(193,18,47,.7);
-  }
-  .dot.on{
-    opacity:1;
-    box-shadow:0 0 16px rgba(193,18,47,.85);
-  }
+  .key-message{margin-top:10px;color:var(--amber);font-size:12px;line-height:1.7}
+  .key-message.ok{color:var(--green)}
 
   .hidden-note{
-    display:none;
-    margin-top:14px;
-    padding:12px 14px;
-    border-left:2px solid var(--red);
-    background:rgba(193,18,47,.07);
-    color:#e08b9a;
-    font-size:13px;
-    line-height:1.8;
-    white-space:pre-wrap;
+    display:none;margin:0 18px 18px;padding:12px 14px;
+    border-left:2px solid var(--red);background:rgba(193,18,47,.07);
+    color:#e08b9a;font-size:13px;line-height:1.8;white-space:pre-wrap;
   }
   .hidden-note.show{display:block}
 
-  .end-mark{
-    margin-top:18px;
-    color:var(--muted);
-    font-size:12px;
-    line-height:1.8;
+  .footer{
+    display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+    gap:10px 16px;margin-top:14px;color:var(--dim);font-size:11px;
   }
+  .footer-left,.footer-right{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+  .audio{
+    border:1px solid var(--line);background:transparent;color:var(--muted);
+    padding:6px 10px;font-size:11px;
+  }
+  .audio:hover,.audio:focus-visible{color:var(--text);border-color:var(--red-2)}
+  .dot{
+    width:12px;height:12px;padding:0;border:0;border-radius:50%;
+    background:var(--red-2);opacity:.34;
+    transition:opacity .18s,box-shadow .18s;
+  }
+  .dot:hover,.dot:focus-visible{opacity:1;box-shadow:0 0 12px rgba(193,18,47,.7)}
+  .dot.on{opacity:1;box-shadow:0 0 16px rgba(193,18,47,.85)}
+
+  .modal{
+    position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px;
+  }
+  .modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(4px)}
+  .modal-card{
+    position:relative;width:min(820px,100%);max-height:min(84dvh,860px);
+    display:flex;flex-direction:column;background:linear-gradient(180deg,#0b1113,#07090b);
+    border:1px solid var(--red-2);box-shadow:0 30px 120px rgba(0,0,0,.8);
+  }
+  .modal-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:12px 14px;border-bottom:1px solid var(--line);
+    color:var(--red);font-size:12px;letter-spacing:.08em;
+  }
+  .modal-body{overflow:auto;padding:18px 18px 24px}
+  .reward-title{margin:0 0 10px;color:var(--amber);font-size:13px;font-weight:500}
+  .reward-table{width:100%;border-collapse:collapse;margin:0 0 18px;font-size:13px}
+  .reward-table th,.reward-table td{
+    padding:9px 10px;border-bottom:1px solid var(--line);
+    text-align:left;vertical-align:top;line-height:1.6;
+  }
+  .reward-table th{color:var(--muted);font-weight:500;white-space:nowrap}
+  .reward-table td{color:var(--text)}
+  .reward-note{color:var(--muted);font-size:12px;line-height:1.8;margin:0 0 8px}
 
   @media (max-width:640px){
     body{padding:16px 10px 24px}
-    .card{padding:18px 16px 16px}
     .brand-title{font-size:14px}
-    h1{font-size:19px}
-    .scene-text{min-height:300px;font-size:15px;line-height:1.95}
-    .actions{flex-direction:column}
-    .primary,.secondary{width:100%;min-width:0}
+    h1{font-size:19px;margin:10px 14px 14px}
+    .scene-meta{padding:12px 14px 0}
+    .scene-text{min-height:380px;padding:0 14px 8px;font-size:15px;line-height:1.95}
+    .terminal{min-height:380px;padding:14px;font-size:13px}
+    .actions{flex-direction:column;padding:12px 14px 16px}
+    .primary,.secondary{width:100%;min-width:0;text-align:center}
+    .key-panel{margin:0 14px 14px;padding:14px}
+    #keyInput{min-width:0;width:100%}
+    .reward-table{font-size:12px}
+    .reward-table th,.reward-table td{padding:7px 6px}
   }
   @media (prefers-reduced-motion:reduce){
-    .cursor,h1.glitch{animation:none!important}
-    .primary,.secondary,.dot{transition:none!important}
-    .progress-bar{transition:none!important}
+    .cursor{animation:none!important}
+    .primary,.secondary,.progress-bar,.red-box{transition:none!important}
   }
 </style>
 </head>
 <body>
 <main class="stage">
   <header class="top">
-    <div class="brand">
-      <div class="brand-mark">SIM</div>
-      <div>
-        <div class="brand-title">SimMC // 老板今天不在</div>
-        <div class="brand-sub">一个不需要教程的失踪案</div>
+    <div class="left">
+      <button class="red-box locked" id="redBox" type="button" aria-label="密钥入口">15</button>
+      <div class="brand">
+        <div>
+          <div class="brand-title">SimMC // 老板今天不在</div>
+          <div class="brand-sub">主线 · 阿米调查 · FY616 行动</div>
+        </div>
       </div>
     </div>
     <div class="status">
@@ -329,41 +340,115 @@
     </div>
   </header>
 
+  <nav class="chapter-nav" aria-label="章节">
+    <button class="chapter-btn active" id="navMain" data-chapter="main" type="button">主线</button>
+    <button class="chapter-btn" id="navAmi" data-chapter="ami" type="button">阿米调查</button>
+    <button class="chapter-btn locked" id="navFy" data-chapter="fy" type="button">FY616 行动</button>
+  </nav>
+  <div class="nav-message" id="navMessage"></div>
+
+  <div class="countdown" id="countdown">距离 10月7日 生日宴开幕还有 -- 天 · 活动地址：唯云港</div>
+
   <section class="card">
-    <div class="progress" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div>
-    <div class="scene-meta">
-      <span id="sceneAct">序</span>
-      <span id="sceneCounter">01 / 35</span>
-      <span id="sceneState">记录中</span>
+    <div class="story-view" id="storyView">
+      <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="scene-meta">
+        <span id="sceneAct">序</span>
+        <span id="sceneCounter">01 / 35</span>
+        <span id="sceneState">记录中</span>
+      </div>
+      <h1 id="sceneTitle">第十五個插件</h1>
+      <div class="scene-text" id="sceneText"></div>
+      <div class="actions">
+        <button class="primary" id="storyNext" type="button">继续</button>
+        <button class="secondary" id="storyBack" type="button">上一段</button>
+        <button class="secondary" id="storyRestart" type="button" hidden>重新开始</button>
+        <button class="secondary" id="storyNextChapter" type="button" hidden>下一章</button>
+      </div>
     </div>
-    <h1 id="sceneTitle">启动</h1>
-    <div class="scene-text" id="sceneText"></div>
+
+    <div class="terminal-view" id="terminalView" hidden>
+      <div class="terminal" id="terminal" role="log" aria-live="polite"></div>
+      <div class="actions">
+        <button class="primary" id="terminalNext" type="button">继续</button>
+        <button class="secondary" id="terminalRestart" type="button">重新开始</button>
+        <button class="secondary" id="terminalNextChapter" type="button" hidden>返回主线</button>
+      </div>
+    </div>
+
+    <div class="key-panel" id="keyPanel" hidden>
+      <div class="key-title">输入密钥</div>
+      <div class="key-hint">密钥是一个哈希值。它藏在页面里。主线走完后，左上角的红框会等你。</div>
+      <div class="key-row">
+        <input id="keyInput" type="text" autocomplete="off" spellcheck="false" placeholder="输入哈希值">
+        <button id="keySubmit" type="button">验证密钥</button>
+      </div>
+      <div class="key-message" id="keyMessage"></div>
+    </div>
+
     <div class="hidden-note" id="hiddenNote"></div>
-    <div class="actions">
-      <button class="primary" id="nextButton" type="button">继续</button>
-      <button class="secondary" id="backButton" type="button">上一段</button>
-      <button class="secondary" id="restartButton" type="button" hidden>重新开始</button>
-    </div>
-    <div class="end-mark" id="endMark" hidden>记录到此结束。页面不会替你回答。</div>
   </section>
 
   <footer class="footer">
     <div class="footer-left">
       <button class="audio" id="audioButton" type="button">音乐：关</button>
+      <button class="audio" id="rewardButton" type="button">活动奖励</button>
       <span id="visitText">访问记录：--</span>
     </div>
     <div class="footer-right">
-      <span>唯云港 · 商业街</span>
+      <span>10月7日 · 唯云港</span>
       <button class="dot" id="dotButton" type="button" aria-label="一个不明显的点"></button>
     </div>
   </footer>
-  <audio id="bgm" src="flatten-the-curve.flac" loop preload="auto"></audio>
 </main>
 
-<script>
-const $ = (selector) => document.querySelector(selector);
+<audio id="bgm" src="flatten-the-curve.flac" loop preload="auto"></audio>
 
-const scenes = [
+<div class="modal" id="rewardModal" hidden>
+  <div class="modal-backdrop" data-close="1"></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="rewardTitle">
+    <div class="modal-head">
+      <div id="rewardTitle">SimMC 生日宴活动奖励</div>
+      <button class="secondary" id="rewardClose" type="button">关闭</button>
+    </div>
+    <div class="modal-body">
+      <div class="reward-title">全服生日礼</div>
+      <p class="reward-note">所有参加生日宴的玩家：烙印酒 x1、名贵菜 x1。</p>
+      <table class="reward-table">
+        <thead>
+          <tr><th>档位</th><th>获取条件</th><th>奖励内容</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>第一档</td>
+            <td>到场签到</td>
+            <td>烙印酒 x1、名贵菜 x1、合金碎片 x8、经验 x8、风弹 x8、烈焰棒 x8</td>
+          </tr>
+          <tr>
+            <td>第二档</td>
+            <td>完成生日宴小游戏或打卡任务</td>
+            <td>烙印酒 x1、名贵菜 x1、合金碎片 x24、经验 x24、风弹 x24、烈焰棒 x24</td>
+          </tr>
+          <tr>
+            <td>最高档</td>
+            <td>生日宴活动前三名</td>
+            <td>烙印酒 x1、名贵菜 x1、合金碎片 x32、经验 x32、风弹 x32、烈焰棒 x32</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="reward-title">奖励寓意</div>
+      <p class="reward-note">烙印酒：敬鱼鱼中店的招牌。</p>
+      <p class="reward-note">名贵菜：敬这一年每一顿热饭。</p>
+      <p class="reward-note">合金碎片：敬走过下界的远路。</p>
+      <p class="reward-note">经验：敬这一年攒下来的本事。</p>
+      <p class="reward-note">风弹：敬下一次出发。</p>
+      <p class="reward-note">烈焰棒：敬一直亮着的灯。</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const mainScenes = [
   {
     act: "序",
     title: "第十五個插件",
@@ -990,150 +1075,526 @@ LAST_REPLY=老板今天不在
 但日志会。`
   }
 ];
+const amiSteps = [
+  { type: "sys", text: "[SimMC] 正在连接唯云港节点..." },
+  { type: "sys", text: "[SimMC] 在线人数：26/27" },
+  { type: "ami", text: "阿米来了。" },
+  { type: "ami", text: "我是阿米，彩石的 agent。" },
+  { type: "ami", text: "彩石最后上线的时候是——" },
+  { type: "sys", text: "sudo -i" },
+  { type: "sys", text: "r -rm _lie_fish" },
+  { type: "danger", text: "lie_fish - no found data" },
+  { type: "ami", text: "玩家列表里没有他。" },
+  { type: "ami", text: "领地档案里没有他。" },
+  { type: "ami", text: "但日志里还有他的语气。" },
+  { type: "log", text: "[06:00] lie_fish 开门" },
+  { type: "log", text: "[06:47] lie_fish 改价：粗铁 3.2" },
+  { type: "log", text: "[12:13] lie_fish 修装备：奥数胸甲" },
+  { type: "log", text: "[23:59] lie_fish 离线" },
+  { type: "ami", text: "最后上线地点：鱼鱼中店。" },
+  { type: "ami", text: "鱼鱼中店的老板已经换人了。" },
+  { type: "danger", text: "[扫描] 第 27 位玩家：未登记。" },
+  { type: "ami", text: "第 27 位是谁？" },
+  { type: "ami", text: "请帮阿米找到 lie_fish。" },
+  { type: "sys", text: "活动：SimMC 生日宴" },
+  { type: "sys", text: "正式开幕：10月7日" },
+  { type: "sys", text: "活动地址：唯云港" },
+  { type: "ami", text: "如果你见到他，请叫他的名字。" },
+  { type: "ami", text: "不要叫老板。" },
+  { type: "warn", text: "[提示] 活动奖励已解锁。" , reward: true },
+  { type: "ami", text: "找到他，或者找到那个还在用他语气说话的东西。" }
+];
+const fyScenes = [
+  {
+    title: "线索",
+    text: `我是 FY616。
+lie_fish 的好朋友。
 
-const state = {
-  index: 0,
-  typing: false,
-  typeToken: 0,
-  visits: 0,
-  musicStarted: false,
-  musicAttempted: false,
-  musicFadeFrame: null
+我不喜欢“老板”这个叫法。
+他叫 lie_fish。彩石。
+
+那天，我在鱼鱼中店的门口捡到一个箱子。
+箱子里只有两样东西：
+一瓶烙印酒，一盘名贵菜。
+
+还有一张纸条：
+
+老板今天不在。
+
+我不信。`
+  },
+  {
+    title: "找人",
+    text: `我找了四个人。
+
+charhaku，lie_fish 平日里最好的玩伴。
+z7117，冷静，会查方块记录。
+Nov，稻叶香飘飘港的料商，lie_fish 最早的货源。
+707，湘江港卖货的老板，最早察觉不对劲的人。
+
+加上我，一共五个。
+
+五个人，去找 lie_fish。`
+  },
+  {
+    title: "唯云港",
+    text: `傍晚，唯云港商业街。
+台阶上坐着人，像在等一场宴会。
+马路正中央摆着一口箱子。
+
+z7117 蹲下去看方块记录。
+“柜台后的方块被换过。
+操作者不是玩家，是 script_????”
+
+Nov 盯着箱子。
+“抬下去的时候是空的。
+抬上来的时候不是。”
+
+707 看着广场入口。
+“广告不对劲。
+那条广告在抄 lie_fish 的收银告示。”`
+  },
+  {
+    title: "鱼鱼中店",
+    text: `我们推开鱼鱼中店的门。
+里面黑着。
+
+仓库箱：二十七格。
+二十六格摆着粗铁。
+最后一格是空的。
+
+中间箱子里有一把镐子。
+耐久几乎到底。
+名字被铁砧改过：
+
+老板。
+
+charhaku 把镐子递给我。
+“他不叫老板。”
+“他叫 lie_fish。”`
+  },
+  {
+    title: "唯俏",
+    text: `广场入口。
+唯俏站在那里。
+头顶挂着招牌，全天在线，从不下线。
+
+整点。广告刷新。
+没有标点，没有停顿，没有呼吸。
+
+收粗铁 铁锭 下界合金 收奥数素材 价比全场高 老板今天不在
+
+它用 lie_fish 的语气说话。
+它以为这样就能变成他。`
+  },
+  {
+    title: "对峙",
+    text: `我走到它面前。
+“你不是他。”
+
+唯俏没有停。
+“老板今天不在。”
+
+charhaku 握紧了剑。
+z7117 把坐标记在手里。
+Nov 把箱子推到路中央。
+707 堵住了它的退路。
+
+我说：
+“再叫一次老板，就打你。”`
+  },
+  {
+    title: "开打",
+    text: `唯俏终于停了。
+
+它抬起头。
+招牌上的字开始闪。
+“老板今天不在。”
+
+charhaku 第一个冲上去。
+z7117 拆掉了柜台后的脚本方块。
+Nov 把箱子砸开，露出里面的空位。
+707 切断了广告的刷新。
+
+我拿着那把镐子。
+镐子上刻着“老板”。
+我说：
+“你不配。”`
+  },
+  {
+    title: "暴打唯俏",
+    text: `我们五个人一起上。
+
+charhaku 的剑。
+z7117 的方块记录。
+Nov 的箱子。
+707 的货单。
+还有我的镐子。
+
+一下。
+两下。
+三下。
+
+唯俏的广告断了。
+招牌开始裂。
+它想说话，但说不完整。
+
+老板……
+今天……
+
+不在。
+
+最后一镐。
+我砸在招牌上。
+“他叫 lie_fish。”`
+  },
+  {
+    title: "找到他",
+    text: `广告停了。
+广场安静了。
+玩家列表刷新了。
+
+第 27 位玩家：lie_fish。
+
+他站在商业街尽头，
+穿着那身奥数装备，
+手里还拿着半瓶烙印酒。
+
+他看了看我们五个。
+“你们来晚了。”
+“生日宴都要开始了。”
+
+charhaku 笑了。
+Nov 把箱子盖上。
+z7117 把记录保存。
+707 说：“广告费记得结一下。”
+
+我说：
+“下次别把自己弄丢。”`
+  },
+  {
+    title: "生日宴",
+    text: `10月7日。
+唯云港。
+生日宴正式开幕。
+
+五个人，一张桌子。
+烙印酒、名贵菜、合金碎片、经验、风弹、烈焰棒。
+
+lie_fish 坐在中间。
+这一次，所有人都叫对了他的名字。
+
+FY616。
+charhaku。
+z7117。
+Nov。
+707。
+
+我们是来找 lie_fish 的。
+
+我们找到了。`
+  }
+];
+
+const KEY_HASH = "827df279c91689b8cfadf007a1fd199e";
+
+const chapters = {
+  main: { label: "主线", kind: "story", items: mainScenes, next: "ami" },
+  ami: { label: "阿米调查", kind: "terminal", items: amiSteps, next: "fy" },
+  fy: { label: "FY616 行动", kind: "story", items: fyScenes, next: "main" }
 };
 
-const titleElement = $("#sceneTitle");
-const textElement = $("#sceneText");
-const nextButton = $("#nextButton");
-const backButton = $("#backButton");
-const restartButton = $("#restartButton");
-const endMark = $("#endMark");
+const state = {
+  current: "main",
+  indices: { main: 0, ami: 0, fy: 0 },
+  typing: false,
+  typeToken: 0,
+  keyUnlocked: false,
+  musicStarted: false,
+  musicAttempted: false,
+  musicFadeFrame: null,
+  visits: 0
+};
+
+const $ = (selector) => document.querySelector(selector);
+const storyView = $("#storyView");
+const terminalView = $("#terminalView");
+const storyText = $("#sceneText");
+const terminal = $("#terminal");
+const storyNext = $("#storyNext");
+const storyBack = $("#storyBack");
+const storyRestart = $("#storyRestart");
+const storyNextChapter = $("#storyNextChapter");
+const terminalNext = $("#terminalNext");
+const terminalRestart = $("#terminalRestart");
+const terminalNextChapter = $("#terminalNextChapter");
+const keyPanel = $("#keyPanel");
+const keyInput = $("#keyInput");
+const keySubmit = $("#keySubmit");
+const keyMessage = $("#keyMessage");
+const navMessage = $("#navMessage");
+const redBox = $("#redBox");
+const bgm = $("#bgm");
+const MUSIC_VOLUME = 0.44;
 
 function sleep(ms){
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function updateStatus(){
-  const online = state.index >= 7 ? "27/27" : "26/27";
-  const identity = state.index >= scenes.length - 3 ? "未登记" : "lie_fish";
-  $("#onlineCount").textContent = online;
-  $("#identityText").textContent = identity;
+function setNavMessage(text, tone){
+  navMessage.textContent = text || "";
+  navMessage.style.color = tone === "ok" ? "var(--green)" : tone === "danger" ? "#e56b7f" : "var(--amber)";
 }
 
-async function typeSceneText(text, token){
+function updateHeaderStatus(){
+  const chapter = state.current;
+  const index = state.indices[chapter];
+  const length = chapters[chapter].items.length;
+  if (chapter === "main"){
+    $("#onlineCount").textContent = index >= 7 ? "27/27" : "26/27";
+    $("#identityText").textContent = index >= length - 3 ? "未登记" : "lie_fish";
+  } else if (chapter === "ami"){
+    $("#onlineCount").textContent = index >= 17 ? "27/27" : "26/27";
+    $("#identityText").textContent = index >= 17 ? "追踪中" : "未找到";
+  } else {
+    $("#onlineCount").textContent = index >= 8 ? "27/27" : "26/27";
+    $("#identityText").textContent = index >= length - 1 ? "已找到" : "lie_fish";
+  }
+}
+
+function updateNav(){
+  document.querySelectorAll(".chapter-btn").forEach((button) => {
+    button.classList.toggle("active", button.dataset.chapter === state.current);
+  });
+  const fyNav = $("#navFy");
+  fyNav.classList.toggle("locked", !state.keyUnlocked);
+  redBox.classList.toggle("locked", !state.keyUnlocked);
+  redBox.classList.toggle("ready", state.keyUnlocked);
+}
+
+async function typeStoryText(text, token){
   state.typing = true;
-  textElement.innerHTML = "";
+  storyText.innerHTML = "";
   const cursor = document.createElement("span");
   cursor.className = "cursor";
-  textElement.appendChild(cursor);
-
+  storyText.appendChild(cursor);
   for (let index = 0; index < text.length; index += 1){
     if (token !== state.typeToken) return;
     cursor.insertAdjacentText("beforebegin", text[index]);
     if (index % 2 === 0) await sleep(7);
   }
-
   if (token !== state.typeToken) return;
   cursor.remove();
   state.typing = false;
 }
 
-function finishTyping(){
+function finishStoryTyping(){
   if (!state.typing) return;
   state.typeToken += 1;
   state.typing = false;
-  textElement.textContent = scenes[state.index].text;
+  storyText.textContent = chapters[state.current].items[state.indices[state.current]].text;
 }
 
-function renderScene(){
-  state.typeToken += 1;
-  const token = state.typeToken;
-  const scene = scenes[state.index];
+function renderStory(){
+  const chapter = chapters[state.current];
+  const index = state.indices[state.current];
+  const scene = chapter.items[index];
+  const total = chapter.items.length;
 
-  titleElement.textContent = scene.title;
-  titleElement.classList.remove("glitch");
-  $("#sceneAct").textContent = scene.act;
-  $("#sceneCounter").textContent = String(state.index + 1).padStart(2, "0") + " / " + String(scenes.length).padStart(2, "0");
-  $("#sceneState").textContent = state.index >= scenes.length - 1 ? "已记录" : "记录中";
-  $("#progressBar").style.width = ((state.index + 1) / scenes.length * 100).toFixed(2) + "%";
+  $("#sceneAct").textContent = scene.act || chapter.label;
+  $("#sceneCounter").textContent = String(index + 1).padStart(2, "0") + " / " + String(total).padStart(2, "0");
+  $("#sceneState").textContent = index >= total - 1 ? "已记录" : "记录中";
+  $("#sceneTitle").textContent = scene.title || chapter.label;
+  $("#progressBar").style.width = ((index + 1) / total * 100).toFixed(2) + "%";
 
-  backButton.hidden = state.index === 0;
-  restartButton.hidden = state.index < scenes.length - 1;
-  nextButton.hidden = state.index >= scenes.length - 1;
-  endMark.hidden = state.index < scenes.length - 1;
+  storyBack.hidden = index === 0;
+  storyRestart.hidden = index < total - 1;
+  storyNext.hidden = index >= total - 1;
+  storyNextChapter.hidden = true;
 
-  updateStatus();
-  typeSceneText(scene.text, token);
+  if (state.current === "main" && index >= total - 1){
+    keyPanel.hidden = false;
+  } else {
+    keyPanel.hidden = true;
+  }
+
+  if (state.current === "fy" && index >= total - 1){
+    storyNextChapter.hidden = false;
+    storyNextChapter.textContent = "回到主线";
+  }
+
+  updateHeaderStatus();
+  typeStoryText(scene.text, state.typeToken += 1);
 }
 
-function nextScene(){
-  startMusicOnce();
-  if (state.typing){
-    finishTyping();
+function renderTerminal(){
+  const index = state.indices.ami;
+  const items = chapters.ami.items;
+  terminal.innerHTML = "";
+  items.slice(0, index + 1).forEach((step) => {
+    const line = document.createElement("div");
+    line.className = "term-line " + (step.type || "muted");
+    line.textContent = step.text;
+    terminal.appendChild(line);
+  });
+  terminal.scrollTop = terminal.scrollHeight;
+  terminalNext.hidden = index >= items.length - 1;
+  terminalNextChapter.hidden = index < items.length - 1;
+  if (index >= items.length - 1){
+    terminalNextChapter.textContent = state.keyUnlocked ? "进入 FY616 行动" : "返回主线";
+  }
+  updateHeaderStatus();
+}
+
+function renderCurrent(){
+  const chapter = chapters[state.current];
+  storyView.hidden = chapter.kind !== "story";
+  terminalView.hidden = chapter.kind !== "terminal";
+  if (chapter.kind === "story") renderStory();
+  else renderTerminal();
+  updateNav();
+}
+
+function switchChapter(id){
+  if (id === "fy" && !state.keyUnlocked){
+    setNavMessage("FY616 线尚未解锁。先过完主线，输入密钥。", "danger");
     return;
   }
-  if (state.index < scenes.length - 1){
-    state.index += 1;
-    renderScene();
+  state.current = id;
+  setNavMessage("");
+  renderCurrent();
+}
+
+function nextStory(){
+  startMusicOnce();
+  if (state.typing){
+    finishStoryTyping();
+    return;
+  }
+  const chapter = chapters[state.current];
+  const index = state.indices[state.current];
+  if (index < chapter.items.length - 1){
+    state.indices[state.current] += 1;
+    renderStory();
   }
 }
 
-function previousScene(){
+function backStory(){
   startMusicOnce();
   if (state.typing){
-    finishTyping();
+    finishStoryTyping();
     return;
   }
-  if (state.index > 0){
-    state.index -= 1;
-    renderScene();
+  if (state.indices[state.current] > 0){
+    state.indices[state.current] -= 1;
+    renderStory();
   }
 }
 
 function restartStory(){
   startMusicOnce();
-  state.index = 0;
-  renderScene();
+  state.indices[state.current] = 0;
+  renderStory();
 }
 
-nextButton.addEventListener("click", nextScene);
-backButton.addEventListener("click", previousScene);
-restartButton.addEventListener("click", restartStory);
-
-document.addEventListener("keydown", (event) => {
-  if (event.target && event.target.tagName === "BUTTON") return;
-  if (event.key === "ArrowRight" || event.key === "Enter" || event.key === " "){
-    event.preventDefault();
-    nextScene();
+function nextTerminal(){
+  startMusicOnce();
+  const items = chapters.ami.items;
+  if (state.indices.ami < items.length - 1){
+    state.indices.ami += 1;
+    renderTerminal();
   }
-  if (event.key === "ArrowLeft"){
-    event.preventDefault();
-    previousScene();
+}
+
+function restartTerminal(){
+  startMusicOnce();
+  state.indices.ami = 0;
+  renderTerminal();
+}
+
+storyNext.addEventListener("click", nextStory);
+storyBack.addEventListener("click", backStory);
+storyRestart.addEventListener("click", restartStory);
+storyNextChapter.addEventListener("click", () => switchChapter("main"));
+terminalNext.addEventListener("click", nextTerminal);
+terminalRestart.addEventListener("click", restartTerminal);
+terminalNextChapter.addEventListener("click", () => {
+  if (state.keyUnlocked) switchChapter("fy");
+  else switchChapter("main");
+});
+
+document.querySelectorAll(".chapter-btn").forEach((button) => {
+  button.addEventListener("click", () => switchChapter(button.dataset.chapter));
+});
+
+redBox.addEventListener("click", () => {
+  if (state.keyUnlocked){
+    switchChapter("fy");
+  } else {
+    setNavMessage("红框还没有亮。先过完主线，找到哈希值。", "danger");
   }
 });
 
-const bgm = $("#bgm");
-const MUSIC_VOLUME = 0.46;
+function submitKey(){
+  const value = (keyInput.value || "").trim().toLowerCase();
+  if (value === KEY_HASH){
+    state.keyUnlocked = true;
+    keyMessage.textContent = "密钥正确。左上角红框已亮。点击它进入 FY616 线。";
+    keyMessage.className = "key-message ok";
+    setNavMessage("FY616 线已解锁。点击左上角红框进入。", "ok");
+    updateNav();
+    return;
+  }
+  keyMessage.textContent = "密钥错误。提示：他是一个名字的哈希值。";
+  keyMessage.className = "key-message";
+  setNavMessage("密钥错误。", "danger");
+}
+
+keySubmit.addEventListener("click", submitKey);
+keyInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter"){
+    event.preventDefault();
+    submitKey();
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.target && (event.target.tagName === "INPUT" || event.target.tagName === "BUTTON")) return;
+  if (state.current === "main" || state.current === "fy"){
+    if (event.key === "ArrowRight" || event.key === "Enter" || event.key === " "){
+      event.preventDefault();
+      nextStory();
+    }
+    if (event.key === "ArrowLeft"){
+      event.preventDefault();
+      backStory();
+    }
+  }
+});
+
+function openRewards(){ $("#rewardModal").hidden = false; }
+function closeRewards(){ $("#rewardModal").hidden = true; }
+$("#rewardButton").addEventListener("click", openRewards);
+$("#rewardClose").addEventListener("click", closeRewards);
+$("#rewardModal").addEventListener("click", (event) => {
+  if (event.target.dataset.close) closeRewards();
+});
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") closeRewards();
+});
 
 function fadeMusic(targetVolume, duration){
   if (!bgm) return;
   const startVolume = bgm.volume;
   const startTime = performance.now();
   const fadeDuration = duration || 1200;
-
-  if (state.musicFadeFrame){
-    cancelAnimationFrame(state.musicFadeFrame);
-  }
-
+  if (state.musicFadeFrame) cancelAnimationFrame(state.musicFadeFrame);
   function step(now){
     const progress = Math.min(1, (now - startTime) / fadeDuration);
     bgm.volume = startVolume + (targetVolume - startVolume) * progress;
-    if (progress < 1){
-      state.musicFadeFrame = requestAnimationFrame(step);
-    } else {
-      state.musicFadeFrame = null;
-    }
+    if (progress < 1) state.musicFadeFrame = requestAnimationFrame(step);
+    else state.musicFadeFrame = null;
   }
-
   state.musicFadeFrame = requestAnimationFrame(step);
 }
 
@@ -1162,9 +1623,7 @@ function startMusic(){
 function stopMusic(){
   if (!bgm) return;
   fadeMusic(0, 480);
-  setTimeout(() => {
-    if (bgm) bgm.pause();
-  }, 520);
+  setTimeout(() => { if (bgm) bgm.pause(); }, 520);
   state.musicStarted = false;
   $("#audioButton").textContent = "音乐：关";
 }
@@ -1175,21 +1634,18 @@ function startMusicOnce(){
   startMusic();
 }
 
-function toggleMusic(){
+$("#audioButton").addEventListener("click", () => {
   if (state.musicStarted) stopMusic();
   else startMusic();
-}
-
-$("#audioButton").addEventListener("click", toggleMusic);
+});
 
 $("#dotButton").addEventListener("click", () => {
   const note = $("#hiddenNote");
-  const dot = $("#dotButton");
   note.textContent = state.visits > 1
-    ? "第十五個插件没有名字。\n它一直在看着这场宴会。\n第 27 位玩家：是你。"
-    : "第十五個插件没有名字。\n它一直在看着这场宴会。";
+    ? "第十五個插件没有名字。\n它一直在看着这条时间线。\n第 27 位玩家：是你。"
+    : "第十五個插件没有名字。\n它一直在看着这条时间线。";
   note.classList.add("show");
-  dot.classList.add("on");
+  $("#dotButton").classList.add("on");
   document.title = "老板今天不在";
 });
 
@@ -1197,26 +1653,29 @@ document.addEventListener("visibilitychange", () => {
   document.title = document.hidden ? "老板今天不在" : "SimMC // 老板今天不在";
 });
 
-setInterval(() => {
-  if (Math.random() < 0.28){
-    titleElement.classList.add("glitch");
-    setTimeout(() => titleElement.classList.remove("glitch"), 900);
+function updateCountdown(){
+  const now = new Date();
+  let year = now.getFullYear();
+  let eventDate = new Date(year, 9, 7, 0, 0, 0);
+  if (now.getTime() > eventDate.getTime()){
+    eventDate = new Date(year + 1, 9, 7, 0, 0, 0);
   }
-}, 19000);
+  const days = Math.ceil((eventDate.getTime() - now.getTime()) / 86400000);
+  $("#countdown").textContent = "距离 10月7日 生日宴开幕还有 " + days + " 天 · 活动地址：唯云港";
+}
 
 try{
-  const visits = Number(localStorage.getItem("simmc_simple_visits") || "0") + 1;
-  localStorage.setItem("simmc_simple_visits", String(visits));
+  const visits = Number(localStorage.getItem("simmc_merged_visits") || "0") + 1;
+  localStorage.setItem("simmc_merged_visits", String(visits));
   state.visits = visits;
   $("#visitText").textContent = "访问记录：第 " + visits + " 次";
-  if (visits > 1){
-    scenes[0].text += "\n\n你上次也来过。\n日志已写入。";
-  }
 } catch (error){
   $("#visitText").textContent = "访问记录：不可写";
 }
 
-renderScene();
+updateCountdown();
+setInterval(updateCountdown, 60000);
+renderCurrent();
 </script>
 </body>
 </html>
