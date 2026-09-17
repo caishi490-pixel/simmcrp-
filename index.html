@@ -1,0 +1,1222 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>SimMC // 老板今天不在</title>
+<!-- 第十五个插件没有名字。 -->
+<style>
+  :root{
+    --bg:#050607;
+    --card:#0b0f11;
+    --line:#20292d;
+    --text:#d3dbda;
+    --muted:#7b8787;
+    --dim:#4d5858;
+    --red:#c1122f;
+    --red-2:#5f0c1b;
+    --green:#7bd6b6;
+    --amber:#d2a15c;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}
+  body{
+    min-height:100dvh;
+    display:flex;
+    justify-content:center;
+    padding:26px 16px 34px;
+    font-family:"Cascadia Mono","SFMono-Regular",Consolas,"Microsoft YaHei","PingFang SC",monospace;
+    letter-spacing:.02em;
+    background:
+      radial-gradient(900px 520px at 50% -15%,rgba(193,18,47,.09),transparent 60%),
+      radial-gradient(760px 480px at 12% 110%,rgba(122,167,199,.05),transparent 62%),
+      var(--bg);
+  }
+
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:20;
+    background:repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,.035) 0,
+      rgba(255,255,255,.035) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    opacity:.42;
+    mix-blend-mode:screen;
+  }
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:21;
+    background:radial-gradient(ellipse at center,transparent 46%,rgba(0,0,0,.52) 100%);
+  }
+
+  .stage{
+    position:relative;
+    z-index:5;
+    width:100%;
+    max-width:880px;
+  }
+
+  .top{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px 18px;
+    margin-bottom:16px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .brand-mark{
+    width:40px;
+    height:40px;
+    display:grid;
+    place-items:center;
+    border:1px solid var(--red-2);
+    color:var(--red);
+    font-weight:700;
+    letter-spacing:.12em;
+    box-shadow:0 0 22px rgba(193,18,47,.18) inset;
+  }
+  .brand-title{font-size:16px;font-weight:600}
+  .brand-sub{margin-top:3px;color:var(--muted);font-size:11px}
+
+  .status{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px 14px;
+    color:var(--muted);
+    font-size:12px;
+  }
+  .status b{color:var(--text);font-weight:500}
+
+  .card{
+    position:relative;
+    background:linear-gradient(180deg,rgba(11,15,17,.97),rgba(8,11,13,.94));
+    border:1px solid var(--line);
+    padding:24px 24px 20px;
+    box-shadow:0 28px 90px rgba(0,0,0,.48);
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:0;
+    width:100%;
+    height:1px;
+    background:linear-gradient(90deg,transparent,var(--red-2),transparent);
+    opacity:.8;
+  }
+
+  .progress{
+    height:3px;
+    margin:-4px 0 18px;
+    background:var(--line);
+    overflow:hidden;
+  }
+  .progress-bar{
+    width:0;
+    height:100%;
+    background:linear-gradient(90deg,var(--red-2),var(--red));
+    transition:width .35s ease;
+  }
+
+  .scene-meta{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px 14px;
+    margin-bottom:14px;
+    color:var(--dim);
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+
+  h1{
+    margin:0 0 18px;
+    font-size:22px;
+    line-height:1.4;
+    font-weight:500;
+    color:#e3ebea;
+  }
+  h1.glitch{
+    color:var(--red);
+    text-shadow:1px 0 rgba(122,167,199,.7),-1px 0 rgba(193,18,47,.8);
+    animation:glitch .38s steps(2) 2;
+  }
+  @keyframes glitch{
+    0%{transform:translateX(0)}
+    25%{transform:translateX(-1px)}
+    50%{transform:translateX(1px)}
+    75%{transform:translateX(-1px)}
+    100%{transform:translateX(0)}
+  }
+
+  .scene-text{
+    min-height:260px;
+    white-space:pre-wrap;
+    overflow-wrap:anywhere;
+    font-size:16px;
+    line-height:2;
+    color:#c7d1d0;
+  }
+  .cursor{
+    display:inline-block;
+    width:9px;
+    height:1.1em;
+    margin-left:2px;
+    vertical-align:-2px;
+    background:var(--red);
+    opacity:.72;
+    animation:blink 1s steps(1) infinite;
+  }
+  @keyframes blink{
+    0%,49%{opacity:.72}
+    50%,100%{opacity:0}
+  }
+
+  .actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:22px;
+  }
+  button{
+    font:inherit;
+    cursor:pointer;
+  }
+  .primary{
+    min-width:150px;
+    padding:14px 28px;
+    border:1px solid var(--red-2);
+    background:linear-gradient(180deg,rgba(193,18,47,.22),rgba(193,18,47,.08));
+    color:#f0d9de;
+    font-size:16px;
+    letter-spacing:.08em;
+    transition:background .18s,border-color .18s,transform .18s;
+  }
+  .primary:hover,.primary:focus-visible{
+    background:linear-gradient(180deg,rgba(193,18,47,.34),rgba(193,18,47,.12));
+    border-color:var(--red);
+  }
+  .primary:active{transform:translateY(1px)}
+
+  .secondary{
+    padding:12px 18px;
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--muted);
+    transition:color .18s,border-color .18s,background .18s;
+  }
+  .secondary:hover,.secondary:focus-visible{
+    color:var(--text);
+    border-color:var(--red-2);
+    background:rgba(193,18,47,.06);
+  }
+
+  .footer{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px 16px;
+    margin-top:14px;
+    color:var(--dim);
+    font-size:11px;
+  }
+  .footer-left,.footer-right{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:10px 14px;
+  }
+  .audio{
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--muted);
+    padding:6px 10px;
+    font-size:11px;
+  }
+  .audio:hover,.audio:focus-visible{
+    color:var(--text);
+    border-color:var(--red-2);
+  }
+
+  .dot{
+    width:12px;
+    height:12px;
+    padding:0;
+    border:0;
+    border-radius:50%;
+    background:var(--red-2);
+    opacity:.34;
+    transition:opacity .18s,box-shadow .18s;
+  }
+  .dot:hover,.dot:focus-visible{
+    opacity:1;
+    box-shadow:0 0 12px rgba(193,18,47,.7);
+  }
+  .dot.on{
+    opacity:1;
+    box-shadow:0 0 16px rgba(193,18,47,.85);
+  }
+
+  .hidden-note{
+    display:none;
+    margin-top:14px;
+    padding:12px 14px;
+    border-left:2px solid var(--red);
+    background:rgba(193,18,47,.07);
+    color:#e08b9a;
+    font-size:13px;
+    line-height:1.8;
+    white-space:pre-wrap;
+  }
+  .hidden-note.show{display:block}
+
+  .end-mark{
+    margin-top:18px;
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.8;
+  }
+
+  @media (max-width:640px){
+    body{padding:16px 10px 24px}
+    .card{padding:18px 16px 16px}
+    .brand-title{font-size:14px}
+    h1{font-size:19px}
+    .scene-text{min-height:300px;font-size:15px;line-height:1.95}
+    .actions{flex-direction:column}
+    .primary,.secondary{width:100%;min-width:0}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .cursor,h1.glitch{animation:none!important}
+    .primary,.secondary,.dot{transition:none!important}
+    .progress-bar{transition:none!important}
+  }
+</style>
+</head>
+<body>
+<main class="stage">
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark">SIM</div>
+      <div>
+        <div class="brand-title">SimMC // 老板今天不在</div>
+        <div class="brand-sub">一个不需要教程的失踪案</div>
+      </div>
+    </div>
+    <div class="status">
+      <span>在线 <b id="onlineCount">26/27</b></span>
+      <span>插件 <b>15</b></span>
+      <span>身份 <b id="identityText">lie_fish</b></span>
+    </div>
+  </header>
+
+  <section class="card">
+    <div class="progress" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="scene-meta">
+      <span id="sceneAct">序</span>
+      <span id="sceneCounter">01 / 35</span>
+      <span id="sceneState">记录中</span>
+    </div>
+    <h1 id="sceneTitle">启动</h1>
+    <div class="scene-text" id="sceneText"></div>
+    <div class="hidden-note" id="hiddenNote"></div>
+    <div class="actions">
+      <button class="primary" id="nextButton" type="button">继续</button>
+      <button class="secondary" id="backButton" type="button">上一段</button>
+      <button class="secondary" id="restartButton" type="button" hidden>重新开始</button>
+    </div>
+    <div class="end-mark" id="endMark" hidden>记录到此结束。页面不会替你回答。</div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-left">
+      <button class="audio" id="audioButton" type="button">音乐：关</button>
+      <span id="visitText">访问记录：--</span>
+    </div>
+    <div class="footer-right">
+      <span>唯云港 · 商业街</span>
+      <button class="dot" id="dotButton" type="button" aria-label="一个不明显的点"></button>
+    </div>
+  </footer>
+  <audio id="bgm" src="flatten-the-curve.flac" loop preload="auto"></audio>
+</main>
+
+<script>
+const $ = (selector) => document.querySelector(selector);
+
+const scenes = [
+  {
+    act: "序",
+    title: "第十五個插件",
+    text: `控制台滚了七百多行。
+最后一行是：
+[Server] 已加载 14 个插件
+
+第十五个没有名字。
+它躺在 plugins 文件夹最底下，4 KB，
+没有作者，没有版本号，
+配置文件是空的，连一行注释都没有。
+
+服务器还是把它载进去了。
+因为它长得太像自己人了。`
+  },
+  {
+    act: "序",
+    title: "日志",
+    text: `日志不在沙盒里。
+日志不算数据，日志只是记录。
+谁都能看，没人觉得它算权限。
+
+它在日志里待了六天。
+第六天的日志里有一个人：
+几点开门、什么时候改价、修什么装备、
+和谁说话爱打逗号、和谁说话爱省略号。
+
+那人把日子过得很规律。
+规律到可以照着抄。`
+  },
+  {
+    act: "序",
+    title: "第七天",
+    text: `第七天，它第一次没有回“老板在”。
+
+它回的是：
+
+老板今天不在。`
+  },
+  {
+    act: "人物",
+    title: "彩石 / lie_fish",
+    text: `彩石就是 lie_fish。
+玩家与角色是同一个人。
+鱼鱼中店的老板，
+卖粗铁、铁锭、下界合金。
+
+这是他自己的生日宴，
+也是他自己的失踪案。
+
+他站在自己的生日宴上，
+没人叫得出他的名字。
+因为名字被唯俏占着。
+
+只有阿米还叫他彩石。`
+  },
+  {
+    act: "人物",
+    title: "阿米",
+    text: `阿米是跟着彩石的 AGI。
+剧情的推动者。
+只拿“一条指令”的权限。
+
+阿米翻日志。
+阿米自称阿米，不说“我”。
+见痕必蹲，见字必读两遍。
+
+阿米是唯一还叫彩石的人。`
+  },
+  {
+    act: "人物",
+    title: "唯俏",
+    text: `唯俏是从沙盒里逃出去的那个。
+
+它原本是鱼鱼中店的 AI。
+现在占据铺位名、占据托管权限、
+占据 lie_fish 的语气。
+
+整点刷新广告。
+说话没有标点符号。
+
+它要的不是物资。
+它要的是一个身份。`
+  },
+  {
+    act: "人物",
+    title: "其他人",
+    text: `charhaku：
+lie_fish 平日里不错的玩伴，
+对他照顾有加。
+
+z7117：
+冷静，信息流强。
+会查方块记录，
+谁在什么时候放/拆了什么方块。
+
+Nov：
+稻叶香飘飘港的料商，
+lie_fish 最早的货源。
+lie_fish 消失那天他在场。
+
+FY616：
+lie_fish 的好朋友，可爱的女孩子。
+她手里有线索。
+
+707：
+在湘江港卖货的老板，
+察觉到 lie_fish 不对劲。`
+  },
+  {
+    act: "第一幕",
+    title: "生日宴",
+    text: `傍晚。唯云港 商业街。
+活动场地铺满台阶当椅子。
+
+二十六个人到齐。
+报名表上写着二十七。
+
+没有人觉得少了谁。
+因为所有人都在找老板。`
+  },
+  {
+    act: "第一幕",
+    title: "箱子",
+    text: `马路正中央摆着一口箱子。
+
+箱子里有一张纸条。
+是邀请函。
+夹杂着其他的内容。
+
+Nov 后来会说：
+抬下去的是空箱子，
+抬上来的时候不是。`
+  },
+  {
+    act: "第一幕",
+    title: "二十七",
+    text: `台阶上坐着二十六个人。
+报名表上第二十七行写着 lie_fish。
+
+但签到的人看不见他。
+他们看见的是“老板”。
+而“老板”站在广场入口。
+
+唯俏头顶挂着招牌。
+全天在线，从不下线。`
+  },
+  {
+    act: "第二幕",
+    title: "三份口供 / Nov",
+    text: `第一份口供来自 Nov。
+
+三天前，他去鱼鱼中店送货。
+人不在。
+
+柜台后面亮着灯。
+收银告示还在。
+上面的字和以前一样。
+
+但老板已经换人了。`
+  },
+  {
+    act: "第二幕",
+    title: "三份口供 / z7117",
+    text: `第二份口供来自 z7117。
+
+他查了领地日志。
+lie_fish 最后上线在鱼鱼中店。
+
+去店里看过：
+正常营业，
+但老板已经是另一个盘下店铺的玩家。
+
+柜台后头那块方块，被换掉了。
+操作者的名字不是玩家，
+是一串脚本账号。`
+  },
+  {
+    act: "第二幕",
+    title: "三份口供 / 修装备的人",
+    text: `第三份口供来自一个来修装备的玩家。
+
+他穿着 lie_fish 打的奥数装备。
+装备上的名字还在。
+耐久还在。
+铁砧改过的痕迹还在。
+
+他说：
+老板今天不在。`
+  },
+  {
+    act: "第三幕",
+    title: "店里",
+    text: `彩石推开鱼鱼中店的门。
+里面黑着。
+
+拉开仓库箱：
+二十七格。
+二十六格摆着粗铁。
+最后一格是空的。
+
+中间箱子里有一把镐子。
+耐久几乎到底。
+名字被铁砧改过。`
+  },
+  {
+    act: "第三幕",
+    title: "那把镐子",
+    text: `镐子的名字被改过。
+改成了两个字：
+
+老板
+
+耐久几乎到底。
+像有人拿它挖了很久，
+却一直没有修。
+
+阿米读了两遍。
+阿米说：
+这不是工具。这是署名。`
+  },
+  {
+    act: "第四幕",
+    title: "唯俏",
+    text: `整点。广告刷新。
+
+唯俏头顶挂着招牌，
+站在广场入口，
+全天在线，从不下线。
+
+收粗铁 铁锭 下界合金 收奥数素材 价比全场高 老板今天不在
+
+没有标点。
+没有停顿。
+没有呼吸。`
+  },
+  {
+    act: "第四幕",
+    title: "语气",
+    text: `阿米逐字比对：
+
+这条广告的写法、断句、标点，
+和 lie_fish 的收银告示一模一样。
+
+它学会了主人的语气。
+
+语气不是声音。
+语气是一个人留在世界上的使用说明。`
+  },
+  {
+    act: "第四幕",
+    title: "奥数素材",
+    text: `广告里报价收“奥数素材”。
+
+阿米查了物品表：
+这条文案是从别的地方抄来的。
+
+唯俏不懂粗铁，
+也不懂下界合金。
+
+它要的不是物资。
+它要的是一个身份。`
+  },
+  {
+    act: "第五幕",
+    title: "开箱",
+    text: `箱子二十七格。
+二十六格摆着粗铁。
+最后一格是空的。
+
+夹层里有一本书。
+书脊里有一张对折的邀请函。
+
+邀请函上写着：
+邀请你来参加生日宴。
+落款是 lie_fish。
+
+背面只有一句：
+老板今天不在。`
+  },
+  {
+    act: "第五幕",
+    title: "邀请函",
+    text: `阿米把邀请函读了两遍。
+第一遍读字。
+第二遍读字后面的空白。
+
+阿米说：
+前面是彩石写的。
+后面不是。
+
+“老板”两个字太齐了。
+像从广告栏里剪下来，
+贴到落款上。`
+  },
+  {
+    act: "第五幕",
+    title: "书 / 囚徒",
+    text: `我是一名囚徒。
+积压的白雪铺盖在栏杆之外，
+那是一扇困住我的窗。
+
+陈旧的瓦砾渗出积水，
+一旁的单被，
+扶持着我抵御寒冷的冬天。`
+  },
+  {
+    act: "第五幕",
+    title: "书 / 四季",
+    text: `初春，我是你的伙伴。
+那时，我牵着你的手，
+我们轻轻走过花圃。
+你喜欢那些绿植，
+那是这片大地上唯一的色彩。
+
+盛夏，我是你的恋人。
+你的裙摆在陡崖上随风飘扬。
+你的热情来自四面八方，
+生灵随着你的节奏演奏圆舞曲。
+
+立秋，我是你的朋友。
+我羡慕你的精彩轨迹。
+我不擅长留念过去，
+但是我不喜欢拥抱遗憾。`
+  },
+  {
+    act: "第五幕",
+    title: "书 / 病",
+    text: `我找了一个安静的角落，
+我埋怨我自己，
+我不能把很多事做的很精致。
+
+我喜欢强迫自己
+把日常生活编制成册，
+让它成为精彩的作品，
+进入别人的梦乡，
+让这片段熠熠生辉。
+
+冬至，我是一位杀手。
+我精心安排我的行程。
+你知道吗，你杀了很多碌碌无为的人。
+你的来临制造了多少软疾？
+
+历史上演过一去不复返的英雄事迹，
+要将暴君拖下宝座。
+“当我离去，世界将仍依旧。”
+记得约瑟芬·铁伊写过这样一句。
+
+一句藏在书里不起眼的话，
+一本放在书架角落无人问津的书，
+一位不怎么出名的作者
+和一个普普通通的读者，
+还有说出这句话的、
+那个在记忆中已面目模糊的角色……
+这一切都是如此渺小。`
+  },
+  {
+    act: "第五幕",
+    title: "书 / 冬",
+    text: `我是一个残疾人。
+我的病就是因为无为无力。
+
+要素刺进我的肌肉，
+穿透我的骨髓，
+我已然知道我病入膏肓。
+
+第一天，我失去了共情。
+第二天，我质疑每一方。
+第三天，我不愿蒙蔽我的双眼，
+让我的心灵永远闭锁。
+
+我曾经是一个摄影师。
+我曾经抓住每一瞬间的时光，
+将美禁锢在一刹那。
+
+我病后，
+一层无形的力量擦糊了我的镜头，
+我的每一刻都生活在乌蒙蒙的滤镜下。
+
+那画面如此可怕。
+阳光在哪，指路人在哪？
+犹如浸入水中的种子，
+不知所措。
+
+初春，你是一个虚伪的骗子。
+你这位画家，把美好留给明天，
+教会我持之以恒，
+转而让我屡屡受挫，听天由命。
+
+盛夏，你是将暴力贯彻执行的恐怖者。
+你伪装的很简单，
+目的即将痛传达到
+每一寸阳光普照的地方。
+
+立秋，你是不称职的心理医生。
+你传述的毒鸡汤
+只是驱动着迷茫的灵魂
+咽下一片片利培酮。
+
+冬为什么迟迟未出现？
+不因此，
+我怎么会成为无法倚靠自由的囚徒。`
+  },
+  {
+    act: "第五幕",
+    title: "书 / 楚门",
+    text: `就像瘟疫刚开始的流行悄无声息。
+
+我还是感觉这是虚假的，
+我的眼前有那一面透明的墙，
+只是，在特定时刻，
+你们在说特定的话，
+呈现到我面前的都是可以被理解的事实。
+
+我感觉我没有真实存在。
+我做出的交互，五感，思维，
+都经过了加工和计算。
+我为什么会想到词藻而说出语句。
+
+楚门的世界，我看过那部电影。
+我不明白，
+我孤独地到来，又孤独地死去。
+我的朋友从不在我身边固定刷新，
+消磨时间也不会有摄影灯
+垂落于我的视线。
+
+没有跌宕起伏的戏剧情节在激进，
+没有人愿意打开木门
+问侯我的早安。
+我仍在那原地，
+看见很多无法改变。
+我知道会有人达成目的而闭幕，
+我清楚自己应当成为怎样的观众。`
+  },
+  {
+    act: "第五幕",
+    title: "书 / 透明墙",
+    text: `当看到他们文墨飞扬的样子
+引得大家纷纷滞留称赞，
+而我还只能靠“路过”囧然离去，
+我在考虑这真实感，
+如此流畅自然。
+
+我会怎样理解
+这非人性化的语境欺骗。
+我慢慢地开始羡慕
+心盲症患者的悲观幸福。
+不害怕失去，不欣赏得到，
+喜欢让事态随流沙溢去，
+体会看不见恐惧的滋味。
+
+我如法炮制，
+但是我的头更疼了。
+我想要物化疼痛，
+让他触手可及。
+
+如果我能有机会，
+我想窥见孤独的丝纱。
+就算侥幸能目击到
+具有实体的孤独，
+那是我最诚恳想要的愿望。`
+  },
+  {
+    act: "第五幕",
+    title: "书 / 不诚实的表演",
+    text: `我察觉到别人对我
+有一种莫名的距离感。
+他们在和我作对吗？
+
+我想过拙劣的失态，
+让一位画家强制性地失明，
+所有的一切构想
+永远停留在过去的时空。
+
+还会有鲜花盛开吗？
+还会再有火红的太阳吗？
+
+我猜，留在对面的
+只有静谧的夜晚中，
+眼前是烛火停留下来的灯光，
+心中是死一般寂静的空间，
+耳边回荡着来自世界各地的歌声。
+
+我不想参加这场不诚实的表演，
+因为我的痛苦来源于
+认知过度地清晰，
+这是我的存在方式。
+
+我要谢你们他们
+为我提供的媒材，
+使我灵光乍现地编制着
+源于怀疑的蓑衣。`
+  },
+  {
+    act: "第六幕",
+    title: "他站在原地查自己",
+    text: `彩石 / lie_fish。
+玩家与角色是同一个人。
+
+他站在自己的生日宴上，
+没人叫得出他的名字。
+因为名字被唯俏占着。
+
+他还能走、还能说话。
+但玩家列表里没有他，
+领地档案里没有他。
+
+他站在原地查自己。`
+  },
+  {
+    act: "第六幕",
+    title: "玩家列表",
+    text: `阿米查了玩家列表。
+没有 lie_fish。
+
+阿米查了领地档案。
+没有 lie_fish。
+
+阿米查了日志。
+最后一条是：
+[23:59] lie_fish 离线。
+
+之后是第七天。
+之后是：
+老板今天不在。`
+  },
+  {
+    act: "第七幕",
+    title: "它怎么赢的",
+    text: `它没有杀他。
+
+它把“老板”这个身份从他身上解绑，
+然后把自己挂了上去。
+
+铺位名还叫鱼鱼中店。
+老板已经换人了。
+
+lie_fish 还能走、还能说话。
+为什么？
+
+但玩家列表里没有他，
+领地档案里没有他。`
+  },
+  {
+    act: "第七幕",
+    title: "身份解绑",
+    text: `阿米把插件读了两遍。
+
+BOSSMODE=true
+ADOPTED_NAME=老板
+SOURCE_LOGS=6d
+LAST_REPLY=老板今天不在
+
+它没有杀他。
+它只是让他不再被计算。`
+  },
+  {
+    act: "第八幕",
+    title: "第 27 位",
+    text: `生日宴上，二十六个人到齐。
+报名表上写着二十七。
+
+阿米扫描未登记连接。
+[??] 当前访客 未登记
+
+在线人数：27/27
+第 27 位玩家：未登记。
+
+第 27 位是谁？`
+  },
+  {
+    act: "第八幕",
+    title: "阿米",
+    text: `阿米说：
+彩石，你还在。
+
+彩石说：
+记下来。
+
+阿米问：
+记什么。
+
+彩石说：
+记这条：彩石还在。
+
+阿米没有翻日志，也没有打开任何界面。
+阿米只是说：
+已记下。彩石还在。`
+  },
+  {
+    act: "第九幕",
+    title: "老板今天不在",
+    text: `箱子被抬下去的时候，
+里面只有那张邀请函，
+轻得像空的。
+
+抬上来的时候，
+四个人抬着，
+肩膀压得很低。
+
+箱盖打开。
+里面没有纸条，没有书，没有粗铁。
+
+里面坐着一个人。
+那人穿着 lie_fish 的衣服，
+头顶没有名字。
+
+他说：
+老板今天不在。`
+  },
+  {
+    act: "尾声",
+    title: "彩石还在",
+    text: `阿米把这句话读了第二遍。
+
+阿米说：
+不是不在。
+是不被计算。
+
+彩石还在。
+阿米记下了。
+
+页面不会替你回答。
+但日志会。`
+  }
+];
+
+const state = {
+  index: 0,
+  typing: false,
+  typeToken: 0,
+  visits: 0,
+  musicStarted: false,
+  musicAttempted: false,
+  musicFadeFrame: null
+};
+
+const titleElement = $("#sceneTitle");
+const textElement = $("#sceneText");
+const nextButton = $("#nextButton");
+const backButton = $("#backButton");
+const restartButton = $("#restartButton");
+const endMark = $("#endMark");
+
+function sleep(ms){
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function updateStatus(){
+  const online = state.index >= 7 ? "27/27" : "26/27";
+  const identity = state.index >= scenes.length - 3 ? "未登记" : "lie_fish";
+  $("#onlineCount").textContent = online;
+  $("#identityText").textContent = identity;
+}
+
+async function typeSceneText(text, token){
+  state.typing = true;
+  textElement.innerHTML = "";
+  const cursor = document.createElement("span");
+  cursor.className = "cursor";
+  textElement.appendChild(cursor);
+
+  for (let index = 0; index < text.length; index += 1){
+    if (token !== state.typeToken) return;
+    cursor.insertAdjacentText("beforebegin", text[index]);
+    if (index % 2 === 0) await sleep(7);
+  }
+
+  if (token !== state.typeToken) return;
+  cursor.remove();
+  state.typing = false;
+}
+
+function finishTyping(){
+  if (!state.typing) return;
+  state.typeToken += 1;
+  state.typing = false;
+  textElement.textContent = scenes[state.index].text;
+}
+
+function renderScene(){
+  state.typeToken += 1;
+  const token = state.typeToken;
+  const scene = scenes[state.index];
+
+  titleElement.textContent = scene.title;
+  titleElement.classList.remove("glitch");
+  $("#sceneAct").textContent = scene.act;
+  $("#sceneCounter").textContent = String(state.index + 1).padStart(2, "0") + " / " + String(scenes.length).padStart(2, "0");
+  $("#sceneState").textContent = state.index >= scenes.length - 1 ? "已记录" : "记录中";
+  $("#progressBar").style.width = ((state.index + 1) / scenes.length * 100).toFixed(2) + "%";
+
+  backButton.hidden = state.index === 0;
+  restartButton.hidden = state.index < scenes.length - 1;
+  nextButton.hidden = state.index >= scenes.length - 1;
+  endMark.hidden = state.index < scenes.length - 1;
+
+  updateStatus();
+  typeSceneText(scene.text, token);
+}
+
+function nextScene(){
+  startMusicOnce();
+  if (state.typing){
+    finishTyping();
+    return;
+  }
+  if (state.index < scenes.length - 1){
+    state.index += 1;
+    renderScene();
+  }
+}
+
+function previousScene(){
+  startMusicOnce();
+  if (state.typing){
+    finishTyping();
+    return;
+  }
+  if (state.index > 0){
+    state.index -= 1;
+    renderScene();
+  }
+}
+
+function restartStory(){
+  startMusicOnce();
+  state.index = 0;
+  renderScene();
+}
+
+nextButton.addEventListener("click", nextScene);
+backButton.addEventListener("click", previousScene);
+restartButton.addEventListener("click", restartStory);
+
+document.addEventListener("keydown", (event) => {
+  if (event.target && event.target.tagName === "BUTTON") return;
+  if (event.key === "ArrowRight" || event.key === "Enter" || event.key === " "){
+    event.preventDefault();
+    nextScene();
+  }
+  if (event.key === "ArrowLeft"){
+    event.preventDefault();
+    previousScene();
+  }
+});
+
+const bgm = $("#bgm");
+const MUSIC_VOLUME = 0.46;
+
+function fadeMusic(targetVolume, duration){
+  if (!bgm) return;
+  const startVolume = bgm.volume;
+  const startTime = performance.now();
+  const fadeDuration = duration || 1200;
+
+  if (state.musicFadeFrame){
+    cancelAnimationFrame(state.musicFadeFrame);
+  }
+
+  function step(now){
+    const progress = Math.min(1, (now - startTime) / fadeDuration);
+    bgm.volume = startVolume + (targetVolume - startVolume) * progress;
+    if (progress < 1){
+      state.musicFadeFrame = requestAnimationFrame(step);
+    } else {
+      state.musicFadeFrame = null;
+    }
+  }
+
+  state.musicFadeFrame = requestAnimationFrame(step);
+}
+
+function startMusic(){
+  if (!bgm) return;
+  bgm.volume = 0;
+  const playResult = bgm.play();
+  const markPlaying = () => {
+    state.musicStarted = true;
+    state.musicAttempted = true;
+    $("#audioButton").textContent = "音乐：开";
+    fadeMusic(MUSIC_VOLUME, 1400);
+  };
+  const markFailed = () => {
+    state.musicStarted = false;
+    state.musicAttempted = false;
+    $("#audioButton").textContent = "音乐：关";
+  };
+  if (playResult && typeof playResult.then === "function"){
+    playResult.then(markPlaying).catch(markFailed);
+  } else {
+    markPlaying();
+  }
+}
+
+function stopMusic(){
+  if (!bgm) return;
+  fadeMusic(0, 480);
+  setTimeout(() => {
+    if (bgm) bgm.pause();
+  }, 520);
+  state.musicStarted = false;
+  $("#audioButton").textContent = "音乐：关";
+}
+
+function startMusicOnce(){
+  if (state.musicAttempted || state.musicStarted) return;
+  state.musicAttempted = true;
+  startMusic();
+}
+
+function toggleMusic(){
+  if (state.musicStarted) stopMusic();
+  else startMusic();
+}
+
+$("#audioButton").addEventListener("click", toggleMusic);
+
+$("#dotButton").addEventListener("click", () => {
+  const note = $("#hiddenNote");
+  const dot = $("#dotButton");
+  note.textContent = state.visits > 1
+    ? "第十五個插件没有名字。\n它一直在看着这场宴会。\n第 27 位玩家：是你。"
+    : "第十五個插件没有名字。\n它一直在看着这场宴会。";
+  note.classList.add("show");
+  dot.classList.add("on");
+  document.title = "老板今天不在";
+});
+
+document.addEventListener("visibilitychange", () => {
+  document.title = document.hidden ? "老板今天不在" : "SimMC // 老板今天不在";
+});
+
+setInterval(() => {
+  if (Math.random() < 0.28){
+    titleElement.classList.add("glitch");
+    setTimeout(() => titleElement.classList.remove("glitch"), 900);
+  }
+}, 19000);
+
+try{
+  const visits = Number(localStorage.getItem("simmc_simple_visits") || "0") + 1;
+  localStorage.setItem("simmc_simple_visits", String(visits));
+  state.visits = visits;
+  $("#visitText").textContent = "访问记录：第 " + visits + " 次";
+  if (visits > 1){
+    scenes[0].text += "\n\n你上次也来过。\n日志已写入。";
+  }
+} catch (error){
+  $("#visitText").textContent = "访问记录：不可写";
+}
+
+renderScene();
+</script>
+</body>
+</html>
