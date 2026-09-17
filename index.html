@@ -329,7 +329,7 @@
       <div class="brand">
         <div>
           <div class="brand-title">SimMC // 老板今天不在</div>
-          <div class="brand-sub">主线 · 阿米调查 · FY616 行动</div>
+          <div class="brand-sub">主线 · 阿米调查 · ***</div>
         </div>
       </div>
     </div>
@@ -343,7 +343,7 @@
   <nav class="chapter-nav" aria-label="章节">
     <button class="chapter-btn active" id="navMain" data-chapter="main" type="button">主线</button>
     <button class="chapter-btn" id="navAmi" data-chapter="ami" type="button">阿米调查</button>
-    <button class="chapter-btn locked" id="navFy" data-chapter="fy" type="button">FY616 行动</button>
+    <button class="chapter-btn locked" id="navFy" data-chapter="fy" type="button">***</button>
   </nav>
   <div class="nav-message" id="navMessage"></div>
 
@@ -1301,7 +1301,7 @@ const KEY_HASH = "827df279c91689b8cfadf007a1fd199e";
 const chapters = {
   main: { label: "主线", kind: "story", items: mainScenes, next: "ami" },
   ami: { label: "阿米调查", kind: "terminal", items: amiSteps, next: "fy" },
-  fy: { label: "FY616 行动", kind: "story", items: fyScenes, next: "main" }
+  fy: { label: "***", kind: "story", items: fyScenes, next: "main" }
 };
 
 const state = {
@@ -1441,7 +1441,7 @@ function renderTerminal(){
   terminalNext.hidden = index >= items.length - 1;
   terminalNextChapter.hidden = index < items.length - 1;
   if (index >= items.length - 1){
-    terminalNextChapter.textContent = state.keyUnlocked ? "进入 FY616 行动" : "返回主线";
+    terminalNextChapter.textContent = state.keyUnlocked ? "进入 ***" : "返回主线";
   }
   updateHeaderStatus();
 }
@@ -1457,7 +1457,7 @@ function renderCurrent(){
 
 function switchChapter(id){
   if (id === "fy" && !state.keyUnlocked){
-    setNavMessage("FY616 线尚未解锁。先过完主线，输入密钥。", "danger");
+    setNavMessage("*** 线尚未解锁。先过完主线，输入密钥。", "danger");
     return;
   }
   state.current = id;
@@ -1539,9 +1539,9 @@ function submitKey(){
   const value = (keyInput.value || "").trim().toLowerCase();
   if (value === KEY_HASH){
     state.keyUnlocked = true;
-    keyMessage.textContent = "密钥正确。左上角红框已亮。点击它进入 FY616 线。";
+    keyMessage.textContent = "密钥正确。左上角红框已亮。点击它进入 *** 线。";
     keyMessage.className = "key-message ok";
-    setNavMessage("FY616 线已解锁。点击左上角红框进入。", "ok");
+    setNavMessage("*** 线已解锁。点击左上角红框进入。", "ok");
     updateNav();
     return;
   }
