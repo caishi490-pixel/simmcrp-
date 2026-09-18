@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
 <title>SimMC // 老板今天不在</title>
-<!-- key: 827df279c91689b8cfadf007a1fd199e -->
+<!-- 密钥只以 SHA-256 哈希形式存在。 -->
 <!-- 左上角的红框不会主动告诉你答案。 -->
 <style>
   :root{
@@ -378,7 +378,7 @@
 
     <div class="key-panel" id="keyPanel" hidden>
       <div class="key-title">输入密钥</div>
-      <div class="key-hint">密钥是一个哈希值。它藏在页面里。主线走完后，左上角的红框会等你。</div>
+      <div class="key-hint">密钥由活动主办方发放。输入后，左上角的红框会亮。</div>
       <div class="key-row">
         <input id="keyInput" type="text" autocomplete="off" spellcheck="false" placeholder="输入哈希值">
         <button id="keySubmit" type="button">验证密钥</button>
@@ -1296,7 +1296,35 @@ Nov。
   }
 ];
 
-const KEY_HASH = "827df279c91689b8cfadf007a1fd199e";
+const KEY_HASHES = [
+  "a7d0e28338b4982d26071e667723af3ea19b0b6f602c81ef95a2ab02bcb09d76",
+  "3b1ca712f862e53bee73984a45ba240bec33f5d0aedfbcbcdffda87f523820b8",
+  "de55213219a1918d4cfe1e53491f23142775dfc9c5f6225f6b02b4cd5f01ce52",
+  "e5ad47871358f7a227960f0f9c73983bc3d959f9f42290c9dfe8d9f92c5499a4",
+  "eaa37b37bf689697f0d01323c70eb585f8b1ee5b8d141812cbac3eed6e9e7033",
+  "ab8c3a126b1102b720b655760c7774bc74ab38e9bb7607127f909433e6ef161f",
+  "a793d90b196ecf04a9eeef541c953966ba3a996b13c348c596fa21db787346be",
+  "352c0a1c78657db9912d142ae886f96b77d97f13e8ee259db7e6196fea4cc798",
+  "874dc0c682a7f708946ff23a305734cb39b6490940fe97ef99fa573786ba0e06",
+  "337fa51a4c253843079aa77cac87dd640e2cd63cb149362dee4975667783047f",
+  "0ae7a9df98f3f29b229f84bea4219022cc2a06bec37214d9d8e0a6beb3642c2e",
+  "2bf8f9ff498ba9ac5bd4fa8ae5e4bb6c70c0e32f297cf71debc9280b5108bd19",
+  "d7165536fa79a3ae434925316955aea627a4a8115df7d7f9f50e1d2847d0bc79",
+  "1bf956dcf3482d09b4c6a143c2566daf2d51cef2b90047593e332230ce263d48",
+  "53b03b64efbdc62b318010c90228756ce6be6c605c848385324308c78096c07a",
+  "192fae7afc930b774234241663eb141854ecc6663258702241400edb0bec2272",
+  "b7cf1bcdf7bd032a5dbc418b47a77336f1711a7f8dd176d3fc25cdee902f4e0d",
+  "26f5a06f37b36bd97f22180bce796335f5e8a2ddb27de7bccf1707d29dca9987",
+  "8213d76a9487325b98b3820efdd0f2b11df83e1cdc291e4c39bf5acf2af55ec8",
+  "994445dffd1deb8559932f79000070b0934c7eb753a23a439ca6c6c22f7478f9",
+  "0b3ecf8866169904d615214c2c45ba1c1cf9a4656ca9794e968846c7af3e5af2",
+  "1b1682b3f98f45ad244a156dd091b2c2d92aded8ba493008347505651bf511f3",
+  "1fde4562eb267f0d810e07661090c45c370b53466bf673c1a56b22b5ae9d9511",
+  "4e44d98ee3eb27d40b1dbd642cc9e17997b68b381bbe4e6cc60554633a8410b0",
+  "12a478e5b1225d44e5e49cb5b16d7cc06542e19f22f2520b4cd1a675d56e77c5",
+  "abbebe7892b57ed48b37831dc9370f9b49c720cd22f86a35d222da0c3fedba77",
+  "d7b9b7bd59ce126ef1a84741c8a39f8954a2cbf00b66948eb97e3dda90070f92"
+];
 
 const chapters = {
   main: { label: "主线", kind: "story", items: mainScenes, next: "ami" },
@@ -1535,9 +1563,45 @@ redBox.addEventListener("click", () => {
   }
 });
 
-function submitKey(){
-  const value = (keyInput.value || "").trim().toLowerCase();
-  if (value === KEY_HASH){
+function normalizeKey(value){
+  return (value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+async function sha256Hex(value){
+  const data = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function submitKey(){
+  const normalized = normalizeKey(keyInput.value);
+  if (!normalized){
+    keyMessage.textContent = "请输入活动密钥。";
+    keyMessage.className = "key-message";
+    setNavMessage("请输入活动密钥。", "danger");
+    return;
+  }
+
+  if (!window.crypto || !window.crypto.subtle){
+    keyMessage.textContent = "当前环境无法校验密钥。请使用 HTTPS 页面。";
+    keyMessage.className = "key-message";
+    setNavMessage("当前环境无法校验密钥。", "danger");
+    return;
+  }
+
+  let hash = "";
+  try{
+    hash = await sha256Hex(normalized);
+  } catch (error){
+    keyMessage.textContent = "密钥校验失败。";
+    keyMessage.className = "key-message";
+    setNavMessage("密钥校验失败。", "danger");
+    return;
+  }
+
+  if (KEY_HASHES.includes(hash)){
     state.keyUnlocked = true;
     keyMessage.textContent = "密钥正确。左上角红框已亮。点击它进入 *** 线。";
     keyMessage.className = "key-message ok";
@@ -1545,7 +1609,8 @@ function submitKey(){
     updateNav();
     return;
   }
-  keyMessage.textContent = "密钥错误。提示：他是一个名字的哈希值。";
+
+  keyMessage.textContent = "密钥错误。请检查活动发放的密钥。";
   keyMessage.className = "key-message";
   setNavMessage("密钥错误。", "danger");
 }
