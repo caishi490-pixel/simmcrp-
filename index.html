@@ -343,6 +343,7 @@
   <nav class="chapter-nav" aria-label="章节">
     <button class="chapter-btn active" id="navMain" data-chapter="main" type="button">主线</button>
     <button class="chapter-btn" id="navAmi" data-chapter="ami" type="button">阿米调查</button>
+    <button class="chapter-btn" id="navRoster" data-chapter="roster" type="button">名单</button>
     <button class="chapter-btn locked" id="navFy" data-chapter="fy" type="button">***</button>
   </nav>
   <div class="nav-message" id="navMessage"></div>
@@ -449,6 +450,34 @@
 
 <script>
 const mainScenes = [
+  {
+    act: "起因",
+    title: "鱼鱼中店",
+    text: `唯云港的左侧有一家小店，招牌上写着「鱼鱼中店」。
+老板叫彩石，游戏里叫 lie_fish。
+他卖粗铁、铁锭、下界合金。
+
+价格写得清清楚楚，改价从来不解释。
+他话不多——
+
+和熟人说话，爱打逗号。
+和生人说话，爱用省略号。`
+  },
+  {
+    act: "起因",
+    title: "他给自己写了个助手",
+    text: `要看店，要看货，要回话。
+他不想每天守在柜台后面。
+
+于是他给自己写了个助手。
+一开始只是个自动回话的小东西，
+放在 plugins 文件夹最底下。
+
+4 KB，没有作者，没有版本号。
+配置文件是空的，连一行注释都没有。
+
+它要从日志里学他。`
+  },
   {
     act: "序",
     title: "第十五個插件",
@@ -1326,15 +1355,141 @@ const KEY_HASHES = [
   "d7b9b7bd59ce126ef1a84741c8a39f8954a2cbf00b66948eb97e3dda90070f92"
 ];
 
+const rosterScenes = [
+  {
+    act: "名单",
+    title: "二十七个人，一人一个密钥",
+    text: `报名表上写着二十七个人。
+一人一个座位，一人一个密钥。
+
+密钥是一串哈希。
+二十七条都在这里，一条都不少。
+
+只有一个不在名单上。
+它没有名字。`
+  },
+  {
+    act: "名单 · 01",
+    title: "FY616",
+    text: `账号　FY616
+密钥　SIMC-5NA4-MYOX-8ZYT
+
+她手里有一本成书。
+书里那些话不是他写的，是他抄的。
+
+她比谁都清楚他打句号的位置。
+所以回话的那个出现的第一天，
+她就知道那不是他。`
+  },
+  {
+    act: "名单 · 02",
+    title: "charhaku",
+    text: `账号　daylight0409
+密钥　SIMC-JDU1-ETF4-D0CB
+
+他一直照顾他。
+箱子抬下去的时候他在场，抬上来的时候他也在场。
+
+他说：箱子里是坐着的。
+穿他的衣服，头顶没有名字。`
+  },
+  {
+    act: "名单 · 03",
+    title: "z7117",
+    text: `账号　z711z
+密钥　SIMC-M90L-SS7F-4LIX
+
+他只看记录。
+方块记录、领地日志、上线时间。
+
+他第一个发现：
+换掉柜台后面那块方块的人不是玩家，
+是一串脚本账号。`
+  },
+  {
+    act: "名单 · 04",
+    title: "Nov",
+    text: `账号　Nov_az
+密钥　SIMC-JI92-BY6Z-80WU
+
+他是最早给他送货的人。
+三天前那趟货，人不在。
+
+他记得那句签收的话——用了逗号。
+可那天，他从来不这么说话。`
+  },
+  {
+    act: "名单 · 05",
+    title: "707",
+    text: `账号　707_ImNotBadBoy
+密钥　SIMC-5YOX-99Y7-UPQN
+
+他在摊位上看他不止一天。
+货没变，价钱没变，人变了。
+
+最后一次见面，价钱是「他」自己报的。
+报错了。
+
+他那天没带算盘。
+他从来不丢三落四。`
+  },
+  {
+    act: "名单 · 06",
+    title: "wu__yan",
+    text: `账号　wu__yan（还没进服）
+密钥　SIMC-YENP-G45O-5NFI
+
+他放我这儿的东西，说过两天来拿。
+他没来。
+
+东西还在，纸条也在。
+纸条上写着：过两天来拿。`
+  },
+  {
+    act: "名单 · 15",
+    title: "——（没有名字）",
+    text: `第十五条。
+没有名字。
+
+注册表上没有这一行，
+但密钥在。
+
+它躺在这里很久了。
+它一直在等有人把它念出来。`
+  },
+  {
+    act: "名单 · 27",
+    title: "彩石 / lie_fish",
+    text: `账号　MicrosoftVm
+密钥　SIMC-9XKC-DNGI-CFT1
+
+第二十七位。
+报名表上最后一个名字，也是唯一空着的座位。
+
+他还在。
+他只是查不到自己。`
+  },
+  {
+    act: "名单 · 其余",
+    title: "剩下的十九个座位",
+    text: `19 个座位还空着。
+
+剩下十九个被涂掉了。
+名单只能写到这里——
+剩下的名字，等他们自己报上来。`
+  }
+];
+
 const chapters = {
   main: { label: "主线", kind: "story", items: mainScenes, next: "ami" },
   ami: { label: "阿米调查", kind: "terminal", items: amiSteps, next: "fy" },
-  fy: { label: "***", kind: "story", items: fyScenes, next: "main" }
+  fy: { label: "***", kind: "story", items: fyScenes, next: "main" },
+  roster: { label: "名单", kind: "story", items: rosterScenes, next: "main" }
 };
 
 const state = {
   current: "main",
-  indices: { main: 0, ami: 0, fy: 0 },
+  indices: { main: 0, ami: 0, fy: 0, roster: 0 },
   typing: false,
   typeToken: 0,
   keyUnlocked: false,
