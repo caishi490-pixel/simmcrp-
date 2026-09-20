@@ -115,6 +115,7 @@
     receipt.textContent = plain;
     receipt.hidden = false;
     consent.hidden = false;
+    if (window.SIMMC) SIMMC.page("panel", "solved");   // 大站那边把这一页记成「已解开」
     document.getElementById("submit").disabled = true;
     body.readOnly = true;
   });

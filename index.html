@@ -9,13 +9,14 @@
 <body>
 <div class="frame">
   <header class="bar">
-    <span class="brand">传埔斯 · 居民档案</span>
+    <span class="brand">传埔斯 · 档案站</span>
     <span class="ver">v1.4</span>
     <span class="spacer"></span>
+    <span class="state">运行中</span>
     <span class="clock" id="clock">--:--:--</span>
   </header>
   <nav class="nav">
-    <a href="index.html" class="here">目录</a>
+    <a href="index.html" class="here">分页</a>
     <a href="city.html">传埔斯</a>
     <a href="life.html">lie_fish</a>
     <a href="places.html">两处地方</a>
@@ -23,32 +24,105 @@
     <a href="panel.html">系统面板</a>
   </nav>
 
-  <div class="doc">
-    <h1>传埔斯 · 居民档案</h1>
-    <div class="lead">关于一位长期居住者的资料。由城内几位居民共同整理。</div>
+  <div class="subbar">
+    <span>上次刷新：<b class="just-now">刚刚</b></span>
+    <span class="spacer"></span>
+    <span id="note">—</span>
+    <span>整理：FY616 · z7117 · 707 · charhaku · nov</span>
+  </div>
 
-    <ul class="index-list">
-      <li><span class="n">01</span><a href="city.html">传埔斯</a><span class="d">城市</span></li>
-      <li><span class="n">02</span><a href="life.html">lie_fish</a><span class="d">这个人</span></li>
-      <li><span class="n">03</span><a href="places.html">两处地方</a><span class="d">Miku小屋 · 鱼鱼中店</span></li>
-      <li><span class="n">04</span><a href="people.html">认识他的人</a><span class="d">五个人</span></li>
-      <li><span class="n">05</span><a href="panel.html">系统面板</a><span class="d">城内系统 · 只读</span></li>
-    </ul>
+  <div class="hub">
+    <div class="panel">
+      <h2>分页 <span class="note">点开就是那一页</span></h2>
+      <table class="hub-table">
+        <thead>
+          <tr><th class="num">#</th><th>分页</th><th class="st">状态</th></tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
 
-    <div class="rule"></div>
-
-    <p>整理：FY616、z7117、707、charhaku、nov</p>
-    <p class="quiet">整理进行中。最后一部分为只读页面，另见页面底部。</p>
+    <div class="panel" style="margin-top:10px">
+      <h2>说明</h2>
+      <div style="padding:10px">
+        <p style="margin:0 0 10px">关于一位长期居住者的资料，由城内几位居民共同整理。分页在陆续补。</p>
+        <p style="margin:0 0 10px" class="quiet">看过的会记在这台机器上。换一台机器，或者清了浏览器数据，就重新开始。</p>
+        <button class="btn" id="reset" type="button">清掉本机记录</button>
+      </div>
+    </div>
   </div>
 
   <footer>
     <span>传埔斯 · 东部港口节点</span>
-    <span>档案版本 v1.4</span>
+    <span>档案站 v1.4</span>
     <span class="spacer"></span>
     <span>如有问题请联系整理者</span>
-    <a class="dot" href="open.html" aria-label="入口">·</a>
   </footer>
 </div>
 <script src="clock.js"></script>
+<script src="state.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var PAGES = [
+    { id: "city",   file: "city.html",   name: "传埔斯",     sub: "城市" },
+    { id: "life",   file: "life.html",   name: "lie_fish",   sub: "这个人" },
+    { id: "places", file: "places.html", name: "两处地方",   sub: "Miku小屋 · 鱼鱼中店" },
+    { id: "people", file: "people.html", name: "认识他的人", sub: "五个人" },
+    { id: "panel",  file: "panel.html",  name: "系统面板",   sub: "城内系统 · 反馈" },
+    { id: "open",   file: "open.html",   name: "入口",       sub: "key" }
+  ];
+
+  var TEXT = { none: "未读", read: "已读", solved: "已解开" };
+  // 入口这一页，"读过"只是到过，还没解开。
+  var OVERRIDE = { open: { none: "未读", read: "未解开", solved: "已解开" } };
+
+  var rows = document.getElementById("rows");
+  var read = 0;
+  var solved = 0;
+
+  PAGES.forEach(function (page, index) {
+    var status = (window.SIMMC ? SIMMC.status(page.id) : "none");
+    if (status !== "none") read++;
+    if (status === "solved") solved++;
+
+    var text = (OVERRIDE[page.id] || TEXT)[status] || TEXT.none;
+
+    var tr = document.createElement("tr");
+    var cellNo = document.createElement("td");
+    cellNo.className = "num";
+    cellNo.textContent = String(index + 1).padStart(2, "0");
+
+    var cellName = document.createElement("td");
+    var link = document.createElement("a");
+    link.className = "name";
+    link.href = page.file;
+    link.textContent = page.name;
+    var sub = document.createElement("span");
+    sub.className = "sub";
+    sub.textContent = page.sub;
+    cellName.appendChild(link);
+    cellName.appendChild(sub);
+
+    var cellSt = document.createElement("td");
+    cellSt.className = "st st-" + status;
+    cellSt.textContent = text;
+
+    tr.appendChild(cellNo);
+    tr.appendChild(cellName);
+    tr.appendChild(cellSt);
+    rows.appendChild(tr);
+  });
+
+  document.getElementById("note").textContent =
+    "读过 " + read + " / " + PAGES.length + (solved ? "　解开 " + solved : "");
+
+  document.getElementById("reset").addEventListener("click", function () {
+    if (window.SIMMC) SIMMC.reset();
+    location.reload();
+  });
+})();
+</script>
 </body>
 </html>

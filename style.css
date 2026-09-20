@@ -121,6 +121,19 @@ html, body {
 .index-list .n { color: #a3a099; width: 20px; flex: none; }
 .index-list .d { color: #8a8780; font-size: 12px; margin-left: auto; text-align: right; }
 
+/* ── 大站：分页列表 ───────────────────────────────── */
+
+.hub { padding: 10px; }
+.hub-table td:first-child { width: 34px; }
+.hub-table .name { color: #26241f; text-decoration: none; border-bottom: 1px solid #b9b6ae; }
+.hub-table .name:hover { background: #e6e3db; }
+.hub-table .sub { color: #9a978f; font-size: 12px; display: inline-block; margin-left: 8px; }
+.hub-table .st { width: 84px; text-align: right; font-size: 12px; }
+
+.st-none { color: #b0ada6; }
+.st-read { color: #7b7871; }
+.st-solved { color: #2f7a33; }
+
 /* ── 面板 ────────────────────────────────────────── */
 
 main {
