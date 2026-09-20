@@ -282,6 +282,9 @@
   }
   .hidden-note.show{display:block}
 
+  /* 页脚那两个回程链接，长得和按钮一样，但是是链接 */
+  a.audio{text-decoration:none;display:inline-flex;align-items:center}
+
   .footer{
     display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
     gap:10px 16px;margin-top:14px;color:var(--dim);font-size:11px;
@@ -590,6 +593,8 @@ An_Li_Hua_De卖给我的
 
   <footer class="footer">
     <div class="footer-left">
+      <a class="audio" href="index.html">← 档案站</a>
+      <a class="audio" href="panel.html">系统面板</a>
       <button class="audio" id="audioButton" type="button">音乐：关</button>
       <button class="audio" id="rewardButton" type="button">活动奖励</button>
       <span id="visitText">访问记录：--</span>
