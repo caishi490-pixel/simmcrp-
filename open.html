@@ -579,7 +579,7 @@ An_Li_Hua_De卖给我的
   </footer>
 </main>
 
-<audio id="bgm" src="flatten-the-curve.flac" loop preload="auto"></audio>
+  <audio id="bgm" src="audio-01.ogg" loop preload="auto"></audio>
 
 <div class="modal" id="rewardModal" hidden>
   <div class="modal-backdrop" data-close="1"></div>
@@ -1924,6 +1924,7 @@ async function submitKey(){
     keyMessage.textContent = "";
     diaryPanel.hidden = false;
     diaryPanel.scrollIntoView({ block: "nearest" });
+    startMusic();          // 好结局音乐：从这里开始，只有这一处会响
     updateNav();
     return;
   }
@@ -1968,13 +1969,20 @@ window.addEventListener("keydown", (event) => {
 
 function fadeMusic(targetVolume, duration){
   if (!bgm) return;
-  const startVolume = bgm.volume;
+  // 读到的可能是 NaN（元素刚换源、或者浏览器还没准备好）。
+  // NaN 会一路传下去，表现成"音乐明明在播，却一点声音都没有"。
+  // 所以起点和每一步都夹在 0~1 之间。
+  const rawStart = Number(bgm.volume);
+  const startVolume = isFinite(rawStart) ? Math.min(1, Math.max(0, rawStart)) : 0;
+  const rawEnd = Number(targetVolume);
+  const endVolume = isFinite(rawEnd) ? Math.min(1, Math.max(0, rawEnd)) : 0;
   const startTime = performance.now();
   const fadeDuration = duration || 1200;
   if (state.musicFadeFrame) cancelAnimationFrame(state.musicFadeFrame);
   function step(now){
     const progress = Math.min(1, (now - startTime) / fadeDuration);
-    bgm.volume = startVolume + (targetVolume - startVolume) * progress;
+    const next = startVolume + (endVolume - startVolume) * progress;
+    bgm.volume = Math.min(1, Math.max(0, next));
     if (progress < 1) state.musicFadeFrame = requestAnimationFrame(step);
     else state.musicFadeFrame = null;
   }
@@ -2012,12 +2020,15 @@ function stopMusic(){
 }
 
 function startMusicOnce(){
-  if (state.musicAttempted || state.musicStarted) return;
-  state.musicAttempted = true;
-  startMusic();
+  // 旧版是"点第一次就播"。现在这首曲子只属于好结局：
+  // 输入对 key、那份日记打开的时候才响（见 submitKey）。
+  // 这里保留函数名不动，只让它什么都不做，免得改一堆调用点。
+  return;
 }
 
 $("#audioButton").addEventListener("click", () => {
+  // 门没开之前，这个按钮不响。曲子是好结局的，不该在外面被点出来。
+  if (!state.keyUnlocked) return;
   if (state.musicStarted) stopMusic();
   else startMusic();
 });
