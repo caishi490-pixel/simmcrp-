@@ -2068,6 +2068,8 @@ const ENDING_LINES = [
   "【TRUE END】",
   "《还给你》",
   "",
+  "日记写到这里就断了。",
+  "",
   "屏幕上的光逐渐暗了下来。",
   "",
   "没有“连接成功”。",
@@ -2199,6 +2201,21 @@ const ENDING_LINES = [
   "",
   "感谢你走完这段故事。",
   "",
+  "【致谢】",
+  "",
+  "707_ImNotBadBoy",
+  "An_Li_Hua_De",
+  "charhaku",
+  "daylight0409",
+  "FY616",
+  "Madoka_Sama",
+  "Nov_az",
+  "TestDummy",
+  "weiqiao",
+  "Wu__yan",
+  "YouNing_YN",
+  "z711z",
+  "",
   "传埔斯不会因为故事结束而消失。",
   "",
   "有些地方，",
@@ -2210,11 +2227,38 @@ const ENDING_LINES = [
   "",
   "SimMC",
   "",
+  "（名单上少了一个人。）",
+  "",
   "THE END"
 ];
 
 let endingIndex = 0;
 let endingTimer = null;
+let endingFast = false;   // 点了「直接看完」之后就不再按节奏走，也不去压音乐
+
+// 这几行单独慢下来。整段最重的地方都在这里，快一点也不行。
+const ENDING_SLOW = {
+  "【任务已交还给本人。】": 2600,
+  "随后，只出现一句话：": 2800,
+  "——END——": 3000,
+  "【THANK YOU】": 2600,
+  "【致谢】": 2400,
+  "（名单上少了一个人。）": 3000,
+  "THE END": 3600
+};
+
+/* 音乐在这里让路。
+   念到「任务已交还给本人」的时候，曲子几乎收干净，
+   一直空到「随后，只出现一句话」，再抬回来。
+   留白比加音量响。 */
+function endingCue(line){
+  if (endingFast) return;
+  if (line === "【任务已交还给本人。】") {
+    window.setTimeout(function () { if (!endingFast) fadeMusic(0.07, 2400); }, 500);
+  } else if (line === "随后，只出现一句话：") {
+    window.setTimeout(function () { if (!endingFast) fadeMusic(MUSIC_VOLUME, 2800); }, 200);
+  }
+}
 
 function endingPush(line){
   const box = $("#endingText");
@@ -2227,6 +2271,7 @@ function endingPush(line){
   el.textContent = line;
   box.appendChild(el);
   box.scrollTop = box.scrollHeight;
+  endingCue(line);
 }
 
 function endingDone(){
@@ -2239,7 +2284,7 @@ function endingStep(){
   if (endingIndex >= ENDING_LINES.length){ endingDone(); return; }
   const line = ENDING_LINES[endingIndex++];
   endingPush(line);
-  const wait = line === "" ? 260 : (line.length > 22 ? 1700 : 1100);
+  const wait = line === "" ? 260 : (ENDING_SLOW[line] || (line.length > 22 ? 1700 : 1100));
   endingTimer = setTimeout(endingStep, wait);
 }
 
@@ -2248,9 +2293,11 @@ $("#endingNext").addEventListener("click", () => {
 });
 
 $("#endingAll").addEventListener("click", () => {
+  endingFast = true;
   if (endingTimer) { clearTimeout(endingTimer); endingTimer = null; }
   while (endingIndex < ENDING_LINES.length) endingPush(ENDING_LINES[endingIndex++]);
   endingDone();
+  fadeMusic(MUSIC_VOLUME, 1800);   // 跳过去的时候别把音乐留在压低的状态
 });
 
 $("#dotButton").addEventListener("click", () => {
