@@ -608,8 +608,15 @@ An_Li_Hua_De卖给我的
 
   <!-- 第一段：页面本身的氛围。旧的这一首（16 MB），进来就放这一首。 -->
   <audio id="bgmA" src="flatten-the-curve.flac" loop preload="auto"></audio>
-  <!-- 第二段：好结局那一首（2.9 MB）。先不下载，第一次点击之后才开始拉。 -->
-  <audio id="bgmB" src="audio-01.ogg" loop preload="none"></audio>
+  <!-- 第二段：好结局那一首。先不下载，第一次点击之后才开始拉。
+       给两个源，浏览器自己挑第一个认得的：
+         Chrome / 安卓 / Firefox → ogg（2.9 MB）
+         iOS Safari              → 不认 Vorbis，退到 mp3（9.6 MB）
+       没有这一步的话，iPhone 上第二段是放不出来的。 -->
+  <audio id="bgmB" loop preload="none">
+    <source src="audio-01.ogg" type="audio/ogg">
+    <source src="audio-01.mp3" type="audio/mpeg">
+  </audio>
 
 <div class="modal" id="rewardModal" hidden>
   <div class="modal-backdrop" data-close="1"></div>
@@ -2083,14 +2090,37 @@ function stopMusic(){
    不做淡出，直接切 —— 那一下本来就是个顿点，新曲子会自己升起来盖住。 */
 function switchToEndingMusic(){
   if (bgm === bgmB) return;
-  if (state.musicFadeFrame) { cancelAnimationFrame(state.musicFadeFrame); state.musicFadeFrame = null; }
   const old = bgm;
-  try { old.pause(); old.volume = 0; old.currentTime = 0; } catch (error) { /* 无所谓 */ }
+  if (state.musicFadeFrame) { cancelAnimationFrame(state.musicFadeFrame); state.musicFadeFrame = null; }
+
   bgm = bgmB;
   state.musicStarted = false;
   state.musicAttempted = false;
   try { bgm.volume = 0; bgm.currentTime = 0; } catch (error) { /* 无所谓 */ }
-  startMusic();
+
+  /* 先把第二段放起来，成功了再把第一段停掉。
+     顺序反过来的话，只要第二段放不出来（格式不支持、或者浏览器不认这个手势），
+     整页就变成静音 —— 手机上是真会这样的。 */
+  const result = bgm.play();
+  const ok = function () {
+    try { old.pause(); old.volume = 0; old.currentTime = 0; } catch (error) { /* 无所谓 */ }
+    state.musicStarted = true;
+    state.musicAttempted = true;
+    $("#audioButton").textContent = "音乐：开";
+    fadeMusic(MUSIC_VOLUME, 1400);
+  };
+  const fail = function () {
+    // 第二段放不出来 —— 退回第一段。它一直没停过，所以页面不会变哑。
+    bgm = old;
+    state.musicStarted = true;
+    state.musicAttempted = true;
+    $("#audioButton").textContent = "音乐：开";
+  };
+  if (result && typeof result.then === "function"){
+    result.then(ok).catch(fail);
+  } else {
+    ok();
+  }
 }
 
 function startMusicOnce(){

@@ -63,9 +63,16 @@ python -m http.server 8123
 | 什么时候开始放 | 哪一首 | 大小 |
 | --- | --- | --- |
 | 进来之后第一次点击 | `flatten-the-curve.flac` | 16 MB |
-| 输入对 key、日记打开那一刻 | `audio-01.ogg` | 2.9 MB |
+| 输入对 key、日记打开那一刻 | `audio-01.ogg` / `audio-01.mp3` | 2.9 / 9.6 MB |
 
 第二首标的是 `preload="none"`，第一次点击之后才开始下载，不占首屏。
+它给的是**两个源**，浏览器自己挑第一个认得的：
+
+- `audio-01.ogg`（Vorbis，2.9 MB）—— Chrome / 安卓 / Firefox 会选它
+- `audio-01.mp3`（9.6 MB）—— iOS Safari 不认 Vorbis，退到这一份
+
+只有第二首需要两个源：第一首是 FLAC，各平台都认。
+（mp3 这份是用 libsndfile 从 ogg 转的，源本来就只有 92 kbps，所以文件比 ogg 大是正常的。）
 
 `_old/` 里那三个留档页也用 `flatten-the-curve.flac`（它们在子目录里，用 `../` 引用根目录这一份）。
 
