@@ -606,7 +606,10 @@ An_Li_Hua_De卖给我的
   </footer>
 </main>
 
-  <audio id="bgm" src="audio-01.ogg" loop preload="auto"></audio>
+  <!-- 第一段：页面本身的氛围。旧的这一首（16 MB），进来就放这一首。 -->
+  <audio id="bgmA" src="flatten-the-curve.flac" loop preload="auto"></audio>
+  <!-- 第二段：好结局那一首（2.9 MB）。先不下载，第一次点击之后才开始拉。 -->
+  <audio id="bgmB" src="audio-01.ogg" loop preload="none"></audio>
 
 <div class="modal" id="rewardModal" hidden>
   <div class="modal-backdrop" data-close="1"></div>
@@ -1705,30 +1708,31 @@ const keySubmit = $("#keySubmit");
 const keyMessage = $("#keyMessage");
 const navMessage = $("#navMessage");
 const redBox = $("#redBox");
-const bgm = $("#bgm");
+const bgmA = $("#bgmA");     // 第一段：页面氛围（旧的那首）
+const bgmB = $("#bgmB");     // 第二段：好结局（你挑的那首）
 const MUSIC_VOLUME = 0.44;
 
+// 现在响的是哪一首。一开始是 A。
+let bgm = bgmA;
+
 /* 浏览器有个规矩：没有"用户点过东西"之前，不许放声音。
-   而开头那一下 play() 是在密钥异步校验之后才调的，
+   而"输对 key"那一下是在异步校验之后才拿到的，
    有些浏览器（或者把自动播放设成"阻止"的配置）到那会儿已经不认这个手势了，
-   结果就是：页面明明该响，却一声没有，还什么都不报。
+   结果就是：该响的时候一声没有，还什么都不报。
 
-   所以第一次点击/按键的时候，先把它静音启动，把这道门过掉。
-   等到好结局打开，再归零、拉起来 —— 声音从第一秒开始，玩家不会察觉。 */
-let musicPrimed = false;
+   所以第一次点击/按键，就把第一段开起来 —— 那段本来就是页面氛围，该听见。
+   同时让第二段开始下载，等玩家摸到 key，它已经在手里了。 */
+let firstTouchDone = false;
 
-function primeMusic(){
-  if (musicPrimed || !bgm) return;
-  musicPrimed = true;
-  bgm.volume = 0;
-  const result = bgm.play();
-  if (result && typeof result.then === "function") {
-    result.catch(function () { musicPrimed = false; });   // 还是不行就算了，别把页面搞崩
-  }
+function onFirstTouch(){
+  if (firstTouchDone) return;
+  firstTouchDone = true;
+  try { bgmB.load(); } catch (error) { /* 拉不动就算了 */ }
+  startMusic();
 }
 
-document.addEventListener("click", primeMusic, { once: true });
-document.addEventListener("keydown", primeMusic, { once: true });
+document.addEventListener("click", onFirstTouch);
+document.addEventListener("keydown", onFirstTouch);
 
 function sleep(ms){
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -1977,10 +1981,7 @@ async function submitKey(){
     diaryPanel.hidden = false;
     diaryPanel.scrollIntoView({ block: "nearest" });
     endingPanel.hidden = false;   // 日记下面接上收尾那一段，等玩家自己点「继续」
-    // 这首曲子为了过"自动播放"那道门，可能已经被静音起过一次了。
-    // 退回去，从第一秒开始放。
-    try { bgm.currentTime = 0; } catch (error) { /* 无所谓 */ }
-    startMusic();          // 好结局音乐：从这里开始，只有这一处会响
+    switchToEndingMusic(); // 第一段的氛围收掉，换成好结局那一首
     if (window.SIMMC) SIMMC.page("open", "solved");   // 大站那边把入口记成「已解开」
     updateNav();
     return;
@@ -2071,10 +2072,25 @@ function startMusic(){
 
 function stopMusic(){
   if (!bgm) return;
+  const target = bgm;          // 别让它等 520 毫秒之后把新那一首按了
   fadeMusic(0, 480);
-  setTimeout(() => { if (bgm) bgm.pause(); }, 520);
+  setTimeout(() => { try { target.pause(); } catch (error) { /* 无所谓 */ } }, 520);
   state.musicStarted = false;
   $("#audioButton").textContent = "音乐：关";
+}
+
+/* 输对 key 的那一下：第一段停，换成第二段。
+   不做淡出，直接切 —— 那一下本来就是个顿点，新曲子会自己升起来盖住。 */
+function switchToEndingMusic(){
+  if (bgm === bgmB) return;
+  if (state.musicFadeFrame) { cancelAnimationFrame(state.musicFadeFrame); state.musicFadeFrame = null; }
+  const old = bgm;
+  try { old.pause(); old.volume = 0; old.currentTime = 0; } catch (error) { /* 无所谓 */ }
+  bgm = bgmB;
+  state.musicStarted = false;
+  state.musicAttempted = false;
+  try { bgm.volume = 0; bgm.currentTime = 0; } catch (error) { /* 无所谓 */ }
+  startMusic();
 }
 
 function startMusicOnce(){
@@ -2085,8 +2101,9 @@ function startMusicOnce(){
 }
 
 $("#audioButton").addEventListener("click", () => {
-  // 门没开之前，这个按钮不响。曲子是好结局的，不该在外面被点出来。
-  if (!state.keyUnlocked) return;
+  // 这个按钮现在管的是"当前这一首"：进门之前是第一段，进门之后是第二段。
+  // 先把它标成"已经碰过了"，免得 onFirstTouch 也来开一次。
+  firstTouchDone = true;
   if (state.musicStarted) stopMusic();
   else startMusic();
 });
