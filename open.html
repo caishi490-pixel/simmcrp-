@@ -261,6 +261,20 @@
   font-family:"Consolas","Sarasa Mono SC","Noto Sans Mono CJK SC",monospace;
 }
 
+/* 日记读完之后，一行一行往下走的那段。 */
+.ending-panel{margin:0 14px 14px;padding:0}
+.ending{
+  background:#131110;color:#cfc9bd;border:1px solid #4a443c;
+  padding:18px 20px;font-size:13px;line-height:2.1;
+  max-height:52vh;overflow-y:auto;
+  font-family:"Consolas","Sarasa Mono SC","Noto Sans Mono CJK SC",monospace;
+}
+.ending-line{white-space:pre-wrap;word-break:break-word}
+.ending-line.em{color:#e7ded0;letter-spacing:.06em}
+.ending-line.blank{height:.7em}
+.ending-line.end{color:var(--red);letter-spacing:.24em;margin-top:14px}
+.ending-actions{display:flex;gap:8px;margin-top:10px}
+
   .hidden-note{
     display:none;margin:0 18px 18px;padding:12px 14px;
     border-left:2px solid var(--red);background:rgba(193,18,47,.07);
@@ -561,6 +575,14 @@ An_Li_Hua_De卖给我的
 什么？ 你 ... 你没使用电脑?
 
 那是 ..... 谁....?(失去意识)</div>
+    </div>
+
+    <div class="ending-panel" id="endingPanel" hidden>
+      <div class="ending" id="endingText" aria-live="polite"></div>
+      <div class="ending-actions">
+        <button class="primary" id="endingNext" type="button">继续</button>
+        <button class="secondary" id="endingAll" type="button">直接看完</button>
+      </div>
     </div>
 
     <div class="hidden-note" id="hiddenNote"></div>
@@ -1670,6 +1692,7 @@ const terminalRestart = $("#terminalRestart");
 const terminalNextChapter = $("#terminalNextChapter");
 const keyPanel = $("#keyPanel");
 const diaryPanel = $("#diaryPanel");
+const endingPanel = $("#endingPanel");
 const keyInput = $("#keyInput");
 const keySubmit = $("#keySubmit");
 const keyMessage = $("#keyMessage");
@@ -1924,6 +1947,7 @@ async function submitKey(){
     keyMessage.textContent = "";
     diaryPanel.hidden = false;
     diaryPanel.scrollIntoView({ block: "nearest" });
+    endingPanel.hidden = false;   // 日记下面接上收尾那一段，等玩家自己点「继续」
     startMusic();          // 好结局音乐：从这里开始，只有这一处会响
     updateNav();
     return;
@@ -2031,6 +2055,199 @@ $("#audioButton").addEventListener("click", () => {
   if (!state.keyUnlocked) return;
   if (state.musicStarted) stopMusic();
   else startMusic();
+});
+
+/* ── 好结局：日记读完之后的那一段 ────────────────────────────
+   点「继续」开始，一行一行往下走，节奏按行长给：
+   短行 1.1 秒，长行 1.7 秒，空行 0.26 秒。
+   「直接看完」把剩下的全铺出来。 */
+const ENDING_LINES = [
+  "【TRUE END】",
+  "《还给你》",
+  "",
+  "屏幕上的光逐渐暗了下来。",
+  "",
+  "没有“连接成功”。",
+  "没有“任务完成”。",
+  "也没有任何一个AI告诉你们，接下来应该做什么。",
+  "",
+  "只剩下一行字。",
+  "",
+  "任务：",
+  "寻找 lie_fish",
+  "",
+  "状态：",
+  "暂停",
+  "",
+  "……",
+  "",
+  "阿米没有说话。",
+  "唯俏也没有继续执行。",
+  "",
+  "第一次，两个AI都没有替任何人做决定。",
+  "",
+  "你们站在鱼鱼中店里。",
+  "店里的东西还在。",
+  "Miku小屋的灯还亮着。",
+  "传埔斯也还在运行。",
+  "",
+  "一切都和以前一样。",
+  "",
+  "只是少了一个人。",
+  "",
+  "nov看着屏幕，最后关闭了终端。",
+  "z7117没有再问“他到底在哪里”。",
+  "707也没有再去寻找新的线索。",
+  "",
+  "FY616轻轻地说：",
+  "",
+  "“我们是不是一直都弄错了一件事？”",
+  "",
+  "没有人回答。",
+  "",
+  "charhaku看着Miku小屋。",
+  "很久以后，他才说：",
+  "",
+  "“他自己的事情。”",
+  "“应该让他自己决定。”",
+  "",
+  "阿米沉默。",
+  "唯俏沉默。",
+  "",
+  "然后，系统弹出最后一条提示：",
+  "",
+  "【是否继续执行？】",
+  "",
+  "所有人都没有选择。",
+  "",
+  "几秒后。",
+  "提示自动消失。",
+  "",
+  "新的文字出现：",
+  "",
+  "【任务已交还给本人。】",
+  "【等待 lie_fish 自己回来。】",
+  "",
+  "画面彻底黑下去。",
+  "",
+  "随后，只出现一句话：",
+  "",
+  "“有些故事，不需要替他写完。”",
+  "",
+  "——END——",
+  "",
+  "",
+  "【THANK YOU】",
+  "",
+  "感谢你来到传埔斯。",
+  "感谢你愿意花时间认识这里的人。",
+  "也感谢你没有急着给任何人下结论。",
+  "",
+  "你见过鱼鱼中店，",
+  "见过Miku小屋，",
+  "见过港口、街道和那些仍然亮着的灯。",
+  "",
+  "你也见过阿米。",
+  "见过唯俏。",
+  "",
+  "它们都曾告诉你，",
+  "自己知道 lie_fish。",
+  "",
+  "但也许直到最后，你才明白：",
+  "",
+  "知道一个人的记录，",
+  "不等于认识一个人。",
+  "",
+  "执行一个人的命令，",
+  "也不等于理解一个人的愿望。",
+  "",
+  "而替一个人完成未完成的事情，",
+  "更不代表你拥有替他决定未来的资格。",
+  "",
+  "所以这一次，",
+  "我们没有替 lie_fish 写下结局。",
+  "",
+  "我们把故事停在这里。",
+  "",
+  "如果有一天，",
+  "他愿意回来。",
+  "",
+  "传埔斯还在那里。",
+  "鱼鱼中店还在那里。",
+  "Miku小屋也还在那里。",
+  "",
+  "而这一次，",
+  "",
+  "没有任何AI会替他决定下一步。",
+  "没有任何人会替他完成。",
+  "",
+  "因为那是他的故事。",
+  "也是他的选择。",
+  "",
+  "——",
+  "",
+  "感谢所有参与《SimMC》的人。",
+  "",
+  "感谢参与测试、建设、演出、编剧、设计、技术制作以及提供建议的每一个人。",
+  "",
+  "感谢每一个愿意在这个世界里停留片刻的人。",
+  "",
+  "也感谢你。",
+  "",
+  "感谢你走完这段故事。",
+  "",
+  "传埔斯不会因为故事结束而消失。",
+  "",
+  "有些地方，",
+  "只要还有人记得，",
+  "",
+  "它就还在那里。",
+  "",
+  "——",
+  "",
+  "SimMC",
+  "",
+  "THE END"
+];
+
+let endingIndex = 0;
+let endingTimer = null;
+
+function endingPush(line){
+  const box = $("#endingText");
+  const el = document.createElement("div");
+  el.className = "ending-line";
+  if (line === "") el.classList.add("blank");
+  else if (/^[【《]/.test(line) || line === "——END——") el.classList.add("em");
+  else if (/^——/.test(line)) el.classList.add("em");
+  if (line === "THE END" || line === "——END——") el.classList.add("end");
+  el.textContent = line;
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+}
+
+function endingDone(){
+  if (endingTimer) { clearTimeout(endingTimer); endingTimer = null; }
+  $("#endingNext").hidden = true;
+  $("#endingAll").hidden = true;
+}
+
+function endingStep(){
+  if (endingIndex >= ENDING_LINES.length){ endingDone(); return; }
+  const line = ENDING_LINES[endingIndex++];
+  endingPush(line);
+  const wait = line === "" ? 260 : (line.length > 22 ? 1700 : 1100);
+  endingTimer = setTimeout(endingStep, wait);
+}
+
+$("#endingNext").addEventListener("click", () => {
+  if (!endingTimer) endingStep();
+});
+
+$("#endingAll").addEventListener("click", () => {
+  if (endingTimer) { clearTimeout(endingTimer); endingTimer = null; }
+  while (endingIndex < ENDING_LINES.length) endingPush(ENDING_LINES[endingIndex++]);
+  endingDone();
 });
 
 $("#dotButton").addEventListener("click", () => {

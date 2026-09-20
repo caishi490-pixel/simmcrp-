@@ -15,7 +15,7 @@
 | `places.html` | Miku小屋 · 鱼鱼中店 |
 | `people.html` | 认识他的人 |
 | `panel.html` | 系统面板 + 反馈（工单） |
-| `open.html` | 入口：输入 key，对了打开那一份日记 |
+| `open.html` | 入口：输入 key，对了打开那一份日记，读完接 TRUE END |
 | `_old/` | 第一版三个页面，留档，未改动 |
 
 `clock.js` 只管页头那口钟。`app.js` 只在 `panel.html` 上用。
