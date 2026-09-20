@@ -1,0 +1,2 @@
+GitHub Pages 默认会用 Jekyll 处理站点，而 Jekyll 会跳过下划线开头的目录，
+_old/ 因此一直 404。放这个文件是让 Pages 原样发布，不要做任何处理。
