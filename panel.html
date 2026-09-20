@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>系统面板 · 传埔斯居民档案</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="frame">
+
+  <header class="bar">
+    <span class="brand">传埔斯 · 系统面板</span>
+    <span class="ver">v1.4</span>
+    <span class="spacer"></span>
+    <span class="state">运行中</span>
+    <span class="clock" id="clock">--:--:--</span>
+  </header>
+
+  <nav class="nav">
+    <a href="index.html">目录</a>
+    <a href="city.html">传埔斯</a>
+    <a href="life.html">lie_fish</a>
+    <a href="places.html">两处地方</a>
+    <a href="people.html">认识他的人</a>
+    <a href="panel.html" class="here">系统面板</a>
+  </nav>
+
+  <div class="subbar">
+    <span>上次刷新：<b class="just-now">刚刚</b></span>
+    <span class="spacer"></span>
+    <span>在线：<b id="online">1,047</b></span>
+    <span>节点：东部港口</span>
+  </div>
+
+  <main>
+
+    <section class="col">
+      <div class="panel">
+        <h2>用户档案</h2>
+        <table class="kv">
+          <tr><td>名称</td><td>lie_fish</td></tr>
+          <tr><td>状态</td><td class="ok">在线</td></tr>
+          <tr><td>最后活动</td><td>刚刚</td></tr>
+          <tr><td>居留时间</td><td>5 年</td></tr>
+          <tr><td>名下</td><td>鱼鱼中店<br>Miku小屋</td></tr>
+          <tr><td>权限级别</td><td>店主</td></tr>
+          <tr><td>上次登出</td><td class="blank">——</td></tr>
+        </table>
+        <div style="padding:8px">
+          <button class="btn" disabled>查看详情</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="col">
+      <div class="panel">
+        <h2>今日营业 <span class="note">鱼鱼中店</span></h2>
+        <table>
+          <tr><td class="num">07:20</td><td>开门</td><td class="tick ok">✓</td></tr>
+          <tr><td class="num">09:00</td><td>改价</td><td class="tick ok">✓</td></tr>
+          <tr><td class="num">12:00</td><td>午饭</td><td class="tick blank">—</td></tr>
+          <tr><td class="num">19:30</td><td>关门</td><td class="tick blank">—</td></tr>
+          <tr><td class="num">—</td><td>每日特价</td><td class="tick ok">已刷新</td></tr>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h2>任务队列 <span class="note">本人</span></h2>
+        <table>
+          <tr><td>补西边的墙</td><td class="tick ok">完成</td></tr>
+          <tr><td>修三把镐子</td><td class="tick ok">完成</td></tr>
+          <tr><td>进货 二十组粗铁</td><td class="tick ok">完成</td></tr>
+          <tr><td>上架今日特价</td><td class="tick ok">完成</td></tr>
+          <tr><td class="blank">（无标题）</td><td class="tick warn">运行中</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section class="col">
+      <div class="panel">
+        <h2>活动记录 <span class="note">近五日</span></h2>
+        <div class="log" id="log"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <section class="panel" style="margin:0 10px 10px">
+    <h2>插件列表 <span class="note">已加载 15</span></h2>
+    <table class="plugins">
+      <thead>
+        <tr><th class="num">#</th><th>名称</th><th>版本</th><th>作者</th><th>大小</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="num">01</td><td>经济系统</td><td>3.2.1</td><td>cityworks</td><td>412 KB</td></tr>
+        <tr><td class="num">02</td><td>领地保护</td><td>2.8.0</td><td>cityworks</td><td>986 KB</td></tr>
+        <tr><td class="num">03</td><td>箱子锁</td><td>1.9.4</td><td>cityworks</td><td>204 KB</td></tr>
+        <tr><td class="num">04</td><td>传送点</td><td>4.0.2</td><td>harbor_dev</td><td>331 KB</td></tr>
+        <tr><td class="num">05</td><td>城市地图</td><td>5.1.0</td><td>harbor_dev</td><td>1.2 MB</td></tr>
+        <tr><td class="num">06</td><td>聊天频道</td><td>2.2.7</td><td>unknown</td><td>158 KB</td></tr>
+        <tr><td class="num">07</td><td>天气与昼夜</td><td>1.0.9</td><td>cityworks</td><td>96 KB</td></tr>
+        <tr><td class="num">08</td><td>鱼鱼中店 · 收银助手</td><td>0.1</td><td>lie_fish</td><td>12 KB</td></tr>
+        <tr><td class="num">09</td><td>港口货运</td><td>3.3.0</td><td>harbor_dev</td><td>527 KB</td></tr>
+        <tr><td class="num">10</td><td>礼仪提示</td><td>0.4.2</td><td>cityworks</td><td>44 KB</td></tr>
+        <tr><td class="num">11</td><td>客流统计</td><td>1.1.3</td><td>unknown</td><td>73 KB</td></tr>
+        <tr><td class="num">12</td><td>建筑材料目录</td><td>2.0.0</td><td>harbor_dev</td><td>610 KB</td></tr>
+        <tr><td class="num">13</td><td>反作弊</td><td>6.4.1</td><td>cityworks</td><td>1.8 MB</td></tr>
+        <tr><td class="num">14</td><td>定期备份</td><td>1.5.6</td><td>cityworks</td><td>128 KB</td></tr>
+        <tr><td class="num">15</td><td class="blank">（空）</td><td class="blank">—</td><td class="blank">—</td><td>4 KB</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="panel ticket">
+    <h2>反馈</h2>
+    <div class="body">
+      <div class="hint">提交后由值班人员受理。也可以直接写在这里，整理者会看到。</div>
+
+      <div class="field">
+        <label>主题</label>
+        <input id="subject" value="老板去哪了" readonly>
+      </div>
+      <div class="field">
+        <label>内容</label>
+        <textarea id="body" rows="3" placeholder="写点什么"></textarea>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="submit">提交</button>
+        <button class="btn" id="reset">清空</button>
+        <span class="mute" id="msg"></span>
+      </div>
+
+      <div class="receipt" id="receipt" hidden></div>
+
+      <div class="consent" id="consent" hidden>
+        <span class="q">是否允许本工单在活动当天被调用？</span>
+        <button class="btn" data-allow="允许">允许</button>
+        <button class="btn" data-allow="不允许">不允许</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>传埔斯 · 东部港口节点</span>
+    <span>面板版本 v1.4</span>
+    <span class="spacer"></span>
+    <span>如有问题请联系值班人员</span>
+  </footer>
+
+</div>
+<script src="clock.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

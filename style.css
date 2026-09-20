@@ -1,0 +1,274 @@
+/* 传埔斯 · 服务器管理面板
+   这一版故意做成"旧后台"：方表格、灰底、等宽字、没有动画。
+   页面本身要正常得无聊，不对的地方只有几处。 */
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #e6e4de;
+  color: #26241f;
+  font-family: "Consolas", "Menlo", "Sarasa Mono SC", "Noto Sans Mono CJK SC",
+               "Microsoft YaHei", monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+}
+
+.frame {
+  max-width: 1120px;
+  margin: 0 auto;
+  background: #f2f0ea;
+  border-left: 1px solid #c2bfb7;
+  border-right: 1px solid #c2bfb7;
+  min-height: 100vh;
+}
+
+/* ── 顶栏 ─────────────────────────────────────────── */
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #4a4a4a;
+  color: #eeeeea;
+  padding: 7px 12px;
+  border-bottom: 1px solid #333;
+}
+
+.bar .brand { font-weight: bold; letter-spacing: 1px; }
+.bar .ver { color: #a9a9a3; font-size: 11px; }
+.bar .spacer { flex: 1; }
+.bar .state {
+  color: #9fe0a0;
+  border: 1px solid #6b8f6b;
+  padding: 0 6px;
+  font-size: 12px;
+}
+.bar .clock { color: #cfcfc8; font-size: 12px; min-width: 76px; text-align: right; }
+
+.subbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  background: #dedbd3;
+  border-bottom: 1px solid #c2bfb7;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: #57544d;
+}
+.subbar .spacer { flex: 1; }
+.just-now { color: #26241f; }
+
+/* ── 导航 ────────────────────────────────────────── */
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  background: #e4e1d9;
+  border-bottom: 1px solid #c2bfb7;
+}
+.nav a {
+  padding: 5px 14px;
+  border-right: 1px solid #c2bfb7;
+  color: #45423c;
+  text-decoration: none;
+  font-size: 12px;
+}
+.nav a:hover { background: #d8d5cd; }
+.nav a.here { background: #f2f0ea; color: #26241f; font-weight: bold; }
+
+/* ── 正文 ────────────────────────────────────────── */
+
+.doc {
+  padding: 16px 18px 24px;
+  max-width: 760px;
+  font-size: 14px;
+  line-height: 1.95;
+  color: #33312c;
+}
+
+.doc h1 { font-size: 17px; margin: 0 0 4px; letter-spacing: 1px; }
+.doc h3 {
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #45423c;
+  background: #e6e3db;
+  border-left: 3px solid #a9a69e;
+  padding: 3px 8px;
+  margin: 24px 0 8px;
+}
+.doc p { margin: 0 0 12px; }
+.doc ul { margin: 0 0 12px; padding-left: 22px; }
+.doc li { margin: 1px 0; }
+.doc .lead { color: #6e6b64; font-size: 12px; margin-bottom: 18px; }
+.doc .rule { border-top: 1px solid #d6d3cb; margin: 20px 0; }
+.doc .quiet { color: #8a8780; font-size: 12px; }
+.doc table { margin-bottom: 12px; }
+.doc td:first-child { width: 30%; color: #6e6b64; }
+
+.index-list { list-style: none; padding: 0; margin: 0; }
+.index-list li {
+  border-bottom: 1px solid #e4e1d9;
+  padding: 7px 2px;
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+.index-list a { color: #26241f; text-decoration: none; border-bottom: 1px solid #b9b6ae; }
+.index-list a:hover { background: #e6e3db; }
+.index-list .n { color: #a3a099; width: 20px; flex: none; }
+.index-list .d { color: #8a8780; font-size: 12px; margin-left: auto; text-align: right; }
+
+/* ── 面板 ────────────────────────────────────────── */
+
+main {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  padding: 10px;
+}
+
+.col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+
+.panel {
+  border: 1px solid #c2bfb7;
+  background: #fbfaf6;
+}
+
+main .panel { margin-bottom: 0; }
+
+h2 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  background: #d8d5cd;
+  border-bottom: 1px solid #c2bfb7;
+  padding: 4px 8px;
+  color: #45423c;
+}
+
+h2 .note { float: right; font-weight: normal; color: #8a8780; letter-spacing: 0; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+th, td {
+  text-align: left;
+  padding: 4px 8px;
+  border-bottom: 1px solid #e4e1d9;
+  vertical-align: top;
+}
+
+tr:last-child th, tr:last-child td { border-bottom: 0; }
+
+.kv td:first-child { width: 40%; color: #6e6b64; }
+
+.num { width: 14%; color: #8a8780; }
+.tick { width: 12%; text-align: center; }
+
+.ok { color: #2f7a33; }
+.warn { color: #a05a00; }
+.mute { color: #a3a099; }
+.blank { color: #b8b5ae; }
+
+/* 这一处是故意对不齐的：表头多缩了两像素。
+   旧后台里到处都是这种地方，全都齐了反而假。 */
+.plugins th:first-child { padding-left: 10px; }
+
+.log {
+  height: 288px;
+  overflow-y: auto;
+  background: #fbfaf6;
+  padding: 6px 8px;
+  font-size: 12px;
+  line-height: 1.85;
+  scrollbar-width: thin;
+}
+.log div { white-space: pre; }
+.log .t { color: #a3a099; }
+.log .odd { color: #a8342f; }
+
+/* ── 工单 ────────────────────────────────────────── */
+
+.ticket { margin: 0 10px 10px; }
+
+.ticket .body { padding: 10px; }
+
+.hint { color: #8a8780; font-size: 12px; margin-bottom: 8px; }
+
+.field { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; }
+.field label { color: #6e6b64; padding-top: 4px; width: 56px; flex: none; }
+.field input, .field textarea {
+  flex: 1;
+  font: inherit;
+  color: #26241f;
+  background: #fff;
+  border: 1px solid #b9b6ae;
+  padding: 4px 6px;
+  border-radius: 0;
+  resize: vertical;
+}
+.field input[readonly] { background: #eeece6; color: #6e6b64; }
+
+.actions { display: flex; gap: 8px; align-items: center; }
+
+.btn {
+  font: inherit;
+  padding: 3px 14px;
+  background: #dedbd3;
+  border: 1px solid #a9a69e;
+  border-radius: 0;
+  color: #26241f;
+  cursor: pointer;
+}
+.btn:hover:not(:disabled) { background: #d2cfc6; }
+.btn:disabled { color: #a9a69e; background: #e9e7e1; cursor: default; }
+
+.receipt {
+  margin-top: 12px;
+  border: 1px dashed #b9b6ae;
+  background: #f5f3ed;
+  padding: 10px;
+  font-size: 12px;
+  line-height: 1.9;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.consent { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+/* 注意：.consent 自己写了 display:flex，会盖掉 [hidden] 的 display:none，
+   所以这一条必须留着，不然"允许/不允许"一进来就露在外面。 */
+.consent[hidden], .receipt[hidden] { display: none; }
+.consent .q { color: #6e6b64; }
+
+footer {
+  border-top: 1px solid #c2bfb7;
+  background: #dedbd3;
+  padding: 6px 12px;
+  font-size: 11px;
+  color: #8a8780;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+footer .spacer { flex: 1; }
+
+/* 目录页页脚那个不明显的点 —— 它通向好结局的入口。
+   别做成明显的链接，也别做成按钮。 */
+.dot {
+  color: #b8b5ae;
+  text-decoration: none;
+  padding: 0 3px;
+  line-height: 1;
+}
+.dot:hover { color: #a8342f; }
+
+@media (max-width: 880px) {
+  main { grid-template-columns: 1fr; padding: 8px; }
+  .log { height: 190px; }
+  .ticket { margin: 0 8px 8px; }
+  .bar { flex-wrap: wrap; gap: 6px; }
+  .bar .clock { min-width: 0; }
+}
