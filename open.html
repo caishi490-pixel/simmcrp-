@@ -1708,6 +1708,28 @@ const redBox = $("#redBox");
 const bgm = $("#bgm");
 const MUSIC_VOLUME = 0.44;
 
+/* 浏览器有个规矩：没有"用户点过东西"之前，不许放声音。
+   而开头那一下 play() 是在密钥异步校验之后才调的，
+   有些浏览器（或者把自动播放设成"阻止"的配置）到那会儿已经不认这个手势了，
+   结果就是：页面明明该响，却一声没有，还什么都不报。
+
+   所以第一次点击/按键的时候，先把它静音启动，把这道门过掉。
+   等到好结局打开，再归零、拉起来 —— 声音从第一秒开始，玩家不会察觉。 */
+let musicPrimed = false;
+
+function primeMusic(){
+  if (musicPrimed || !bgm) return;
+  musicPrimed = true;
+  bgm.volume = 0;
+  const result = bgm.play();
+  if (result && typeof result.then === "function") {
+    result.catch(function () { musicPrimed = false; });   // 还是不行就算了，别把页面搞崩
+  }
+}
+
+document.addEventListener("click", primeMusic, { once: true });
+document.addEventListener("keydown", primeMusic, { once: true });
+
 function sleep(ms){
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -1955,6 +1977,9 @@ async function submitKey(){
     diaryPanel.hidden = false;
     diaryPanel.scrollIntoView({ block: "nearest" });
     endingPanel.hidden = false;   // 日记下面接上收尾那一段，等玩家自己点「继续」
+    // 这首曲子为了过"自动播放"那道门，可能已经被静音起过一次了。
+    // 退回去，从第一秒开始放。
+    try { bgm.currentTime = 0; } catch (error) { /* 无所谓 */ }
     startMusic();          // 好结局音乐：从这里开始，只有这一处会响
     if (window.SIMMC) SIMMC.page("open", "solved");   // 大站那边把入口记成「已解开」
     updateNav();
@@ -2034,7 +2059,8 @@ function startMusic(){
   const markFailed = () => {
     state.musicStarted = false;
     state.musicAttempted = false;
-    $("#audioButton").textContent = "音乐：关";
+    // 别把状态悄悄退回去：放不出来的时候也要让人知道"可以点一下"。
+    $("#audioButton").textContent = "音乐：点这里";
   };
   if (playResult && typeof playResult.then === "function"){
     playResult.then(markPlaying).catch(markFailed);
