@@ -71,73 +71,25 @@
   var today2 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), HOURS[1], MINS[1], 0);
   line(SCHEDULE[1], false, today2);
 
-  /* ── 工单 ─────────────────────────────────────── */
-  var subject = document.getElementById("subject");
+  /* ── 反馈 ─────────────────────────────────────────
+     简化版：写一句，点提交，直接进「老板今天不在」那一页。
+     写的内容不会传到任何地方（这页没有后端），它只代表"你交了一次"。 */
   var body = document.getElementById("body");
-  var receipt = document.getElementById("receipt");
-  var consent = document.getElementById("consent");
   var msg = document.getElementById("msg");
-  var plain = "";
-
-  function shortCode(text, salt) {
-    // 自己算一个短码，不联网。内容变了码就变。
-    var h = 2166136261;
-    var s = salt + "|" + text;
-    for (var i = 0; i < s.length; i++) {
-      h ^= s.charCodeAt(i);
-      h = (h * 16777619) >>> 0;
-    }
-    return h.toString(16).toUpperCase().padStart(8, "0").slice(0, 4);
-  }
 
   document.getElementById("submit").addEventListener("click", function () {
-    var text = body.value.trim();
-    if (!text) {
-      msg.textContent = "内容不能为空。";
-      body.focus();
-      return;
-    }
-    msg.textContent = "";
-
-    var d = new Date();
-    var id = "TP-" + pad(d.getMonth() + 1) + pad(d.getDate()) + "-" + shortCode(text, stamp());
-    var at = stamp();
-
-    plain =
-      "工单号    " + id + "\n" +
-      "主题      " + subject.value + "\n" +
-      "状态      已受理\n" +
-      "受理人    ——\n" +
-      "提交时间  " + at + "\n" +
-      "──────────────\n" +
-      text;
-
-    receipt.textContent = plain;
-    receipt.hidden = false;
-    consent.hidden = false;
     if (window.SIMMC) SIMMC.page("panel", "solved");   // 大站那边把这一页记成「已解开」
     document.getElementById("submit").disabled = true;
-    body.readOnly = true;
+    msg.textContent = "已提交。正在打开……";
+    window.setTimeout(function () {
+      window.location.href = "open.html";
+    }, 700);
   });
 
   document.getElementById("reset").addEventListener("click", function () {
     body.value = "";
-    body.readOnly = false;
-    receipt.hidden = true;
-    receipt.textContent = "";
-    consent.hidden = true;
     msg.textContent = "";
-    document.getElementById("submit").disabled = false;
-    plain = "";
     body.focus();
-  });
-
-  consent.addEventListener("click", function (event) {
-    var choice = event.target.getAttribute("data-allow");
-    if (!choice) return;
-    // 两个按钮的结果一模一样。这是有意的。
-    receipt.textContent = plain + "\n──────────────\n调用授权  已记录";
-    consent.hidden = true;
   });
 
 })();
